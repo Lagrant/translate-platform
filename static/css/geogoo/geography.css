@@ -1,0 +1,30 @@
+html,
+body,
+#container {
+    width: 85%;
+    height: 85%;
+    margin: 0;
+    background: black;
+
+}
+
+#loadingTip {
+    position: absolute;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    padding: 3px 10px;
+    background: red;
+    color: #fff;
+    font-size: 14px;
+}
+
+#infoTip {
+    position: absolute;
+    width: 100%;
+    background: #000;
+    z-index: 9999;
+    text-align: center;
+    line-height: 150%;
+    color: #fff;
+}

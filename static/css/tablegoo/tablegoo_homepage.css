@@ -1,0 +1,170 @@
+/*---------------------------------------
+   Analysis
+-----------------------------------------*/
+
+#analysis{
+ background: rgb(246, 246, 246);
+  padding-top: 5%;
+  padding-bottom: 0px;
+}
+
+#analysis h1{
+  font-size: 40px;
+  font-weight: 200;
+  line-height: 50px;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+#analysis h3,
+#analysis p {
+  margin: 0;
+    color: black;
+}
+
+#analysis_container {
+    height: 800px;
+    margin: 0px auto;
+}
+
+.zoom_button{
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    background:ivory;
+    margin: 5px 0 0 0px;
+    position: relative;
+    border: 0;
+    box-shadow:  2px 2px 8px dimgrey;
+    -webkit-box-shadow:  2px 2px 8px dimgrey;
+    -moz-box-shadow:  2px 2px 8px dimgrey;
+}
+.zoom_button:hover{
+    background:lightgray;
+}
+
+#corr_matrix_svg {
+  font: 10px sans-serif;
+}
+
+.table_upload{
+    cursor: pointer;
+    padding-bottom: 60px;
+}
+
+.nav-tabs.primary.bordered+.tab-content{
+min-height:500px;
+-webkit-border-radius:0 0 1px 1px;
+-webkit-background-clip:padding-box;
+-moz-border-radius:0 0 1px 1px;
+-moz-background-clip:padding;
+
+padding:20px;
+margin-bottom:20px;
+background-color:white;
+line-height:24px;
+color:black;
+box-shadow: 10px 10px 5px rgb(220,220,220)
+}
+
+.nav-tabs.primary > li > a{
+margin-right:2px;
+line-height:1.42857143;
+background-color:rgb(150, 150, 150);
+color:black;
+}
+
+.nav-tabs.primary > li > a:hover{
+background-color:rgb(246, 246, 246);
+color:black;
+}
+
+.nav-tabs.primary > li.active > a{
+background-color:white;
+color:black;
+}
+
+/*---------------------------------------
+   Visual Charts
+-----------------------------------------*/
+
+#visual_charts{
+  background: rgb(246, 246, 246);
+  padding-top: 5%;
+  padding-bottom: 0px;
+  text-align: center;
+}
+
+#visual_charts h1{
+  font-size: 40px;
+  font-weight: 200;
+  line-height: 50px;
+  margin-bottom: 0;
+}
+
+#visual_charts h3,
+#visual_charts p {
+  margin: 0;
+}
+
+.visual_charts_tab {
+  overflow: auto;
+    width: 1400px;
+    height: 800px;
+    margin: 0px auto;
+}
+
+.visual_charts_tab input {
+    opacity: 1;
+
+}
+
+.visual_charts_tab label {
+    cursor: pointer;
+    background: rgb(150, 150, 150);
+    color: black;
+    border-radius: 5px 5px 0 0;
+    padding: 1.5% 3%;
+    float: left;
+    margin-right: 2px;
+    margin-bottom: 0px;
+}
+
+.visual_charts_tab input:checked + label {
+    background: white;
+    color: black;
+}
+
+.visual_charts_tab input:nth-of-type(1):checked ~ .panels .panel:first-child,
+.visual_charts_tab input:nth-of-type(2):checked ~ .panels .panel:nth-child(2),
+.visual_charts_tab input:nth-of-type(3):checked ~ .panels .panel:last-child {
+    opacity: 1;
+    -webkit-transition: .9s;
+}
+
+.visual_charts_tab .panels {
+    overflow: auto;
+    float: left;
+    clear: both;
+    position: relative;
+    width: 1200px;
+    background: #fff;
+    border-radius: 0 10px 10px 10px;
+    min-height: 430px;
+    box-shadow: 10px 10px 5px rgb(220,220,220)
+}
+
+.visual_charts_tab .panel {
+    width: 1200px;
+    opacity: 0;
+    position: absolute;
+    background: #fff;
+    border: none;
+    padding-top: 1%;
+}
+
+.visual_charts_tab .panel h2 {
+    margin: 0;
+}
+
+

@@ -1,0 +1,146 @@
+body{
+    background: white;
+    font-size: 14px;
+        }
+button, input, optgroup, select, textarea,p {
+    color: black;
+    font-size: 14px;
+}
+  body {
+  position: relative;
+
+  width: auto;
+  margin-bottom: 1em;
+  margin-left: 0px;
+}
+#presets a { border-left: solid #666 1px; padding: 0 10px; }
+#presets a.first { border-left: none; }
+#keyword { width: 300px; }
+#fetcher { width: 500px; }
+#keyword, #go { font-size: 1.5em; }
+#wordcloud_text { width: 85%; height: 100px; }
+p.copy { font-size: small; }
+#form { font-size: small; position: relative; }
+hr { border: none; border-bottom: solid #ccc 1px; }
+a.active { text-decoration: none; color: #000; font-weight: bold; cursor: text; }
+#angles line, #angles path, #angles circle { stroke: #666; }
+#angles text { fill: #333; }
+#angles path.drag { fill: #666; cursor: move; }
+#angles { text-align: center; margin: 0 auto; width: 350px; }
+#angles input, #max { width: 42px; }
+        a {
+  cursor:pointer;
+}
+
+.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+#licensing {
+  fill: green;
+}
+
+.link.licensing {
+  stroke: green;
+}
+
+.link.resolved {
+  stroke-dasharray: 0,2, 1;
+}
+
+circle {
+  fill: #ccc;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+text {
+  font: 12px Microsoft YaHei;
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+.linetext {
+    font-size: 12px;
+}
+a {
+  cursor:pointer;
+}
+
+#h1_KnowledgeGraph {
+    background: rgb(246, 246, 246);
+    padding-top: 3px;
+    padding-bottom: 5px;
+}#h1_KnowledgeGraph {
+    font-size: 20px;
+    font-weight: 200;
+    line-height: 20px;
+    text-align: center;
+    margin-top: -14px;
+    margin-bottom: 10px;
+}
+ #h1_WordCloud{display: none;}
+ #h1_WordCloud{
+    background: rgb(246, 246, 246);
+    padding-top: 3px;
+    padding-bottom: 5px;
+}#h1_WordCloud {
+    font-size: 20px;
+    font-weight: 200;
+    line-height: 20px;
+    text-align: center;
+    margin-top: -14px;
+    margin-bottom: 10px;
+}
+   #h1_KnowledgeGraph h1{
+    font-size: 27px;
+        margin-top: 13px;
+    margin-bottom: 10px;
+}
+     #h1_WordCloud h1{
+    font-size: 27px;
+        margin-top: 13px;
+    margin-bottom: 10px;
+}
+
+    #hidebg {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        background-color: #000;
+        width: 100%;
+        height:100%;
+        /*宽度设置为100%，这样才能使隐藏背景层覆盖原页面*/
+        filter: alpha(opacity=60);
+        /*设置透明度为60%*/
+        opacity: 0.6;
+        /*非IE浏览器下设置透明度为60%*/
+        display: none;
+        /* http://www.jb51.net */
+        z-Index: 2;
+    }
+
+    #lghidebox {
+        position: absolute;
+        left: 20%;
+        top: 20%;
+        width: 60%;
+        height: 40%;
+        background-color: #fff;
+        display: none;
+        cursor: pointer;
+        z-Index: 3;
+    }
+
+    #activatebtn {
+        text-align: center;
+        cursor: pointer;
+        z-Index: 1;
+    }
+#hidebtn{
+        position:relative;
+        left: 0;
+        top: 0;
+    }

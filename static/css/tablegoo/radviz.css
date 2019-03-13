@@ -1,0 +1,58 @@
+ .radviz_title{
+    margin-top: 15px;
+   color: black;
+  }
+ .radviz_column-left{
+  float: left;
+  margin-top: inherit;
+  width: 10%;
+}
+.radviz_column-center{
+  float: right;
+  display: inline-block;
+  margin-top: inherit;
+  width: 90%;
+}
+.radviz_displayStyle{
+  overflow: auto;
+  background-color: #ededed;
+  margin-left: 25px;
+  margin-top: 15px;
+  padding-left: 5px;
+  padding-top: 5px;
+  height:240px;
+  width: 260px;
+  color: black;
+}
+#setColorVar{
+  margin-top: 5px;
+  height: 130px;
+}
+.radviz_displayStyle p{
+  margin-top: 5px;
+  padding-top: 5px;
+  line-height: 5%;
+  color: black;
+}
+.radviz_selectionAlignment{
+  text-align: left;
+}
+#radviz_info{
+  position:fixed;
+  width:200px;
+  height:auto;
+  padding:10px;
+  background-color:white;
+  border-radius:10px;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+  color:black ;
+}
+#radviz_info.hidden{
+  display:none;
+}
+#radviz_info p{
+  margin:0px;
+  font-size:12px;
+  font-weight: bold;
+  color: black;
+}

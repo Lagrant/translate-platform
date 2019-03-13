@@ -1,0 +1,31 @@
+  .parallel_svg {
+  font: 10px sans-serif;
+   margin-top: 10px;
+}
+
+.parallel_background path {
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+}
+
+.parallel_foreground path {
+  stroke: skyblue;
+}
+
+.parallel_brush .extent {
+  fill-opacity: .3;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+
+.parallel_axis line,
+.parallel_axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.parallel_axis text {
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  cursor: move;
+}

@@ -1,0 +1,243 @@
+
+<html lang="en">
+<head>
+    <title>DaGoo Gallery</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/bootstrap/tooplate-style.css">
+    <link rel="stylesheet" href="../static/css/bootstrap/user_img.css">
+    <link rel="stylesheet" href="../static/css/gallery.css">
+</head>
+<body>
+<div class="navbar custom-navbar navbar-fixed-top" role="navigation">
+    <div class="container">
+        <!-- NAVBAR HEADER -->
+        <div class="navbar-header">
+            <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon icon-bar"></span>
+                <span class="icon icon-bar"></span>
+                <span class="icon icon-bar"></span>
+            </button>
+            <!-- lOGO -->
+            <a href="#" class="navbar-brand">DaGoo!</a>
+        </div>
+        <!-- MENU LINKS -->
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/" class="smoothScroll">Home</a></li>
+                <li><a href="/products" class="smoothScroll">Products</a></li>
+                <li><a href="/about_us" class="smoothScroll">About us</a></li>
+                <li><a href="/contact_us" class="smoothScroll">Contact us</a></li>
+                <li>
+                    <div style="width: 2px; height: 20px; background-color: white; margin: 15px"></div>
+                </li>
+                {% if user %}
+                    <li class="user_img"><a class="page-scroll" href="/user/">
+                        <div class="to3" style="margin-top: -10px;">
+                            <div class="to2">
+                                <div class="to1">
+                                    <img class="to" src="/static/user/{{ user.email }}/img/user_img.jpg">
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    </li>
+                    <li><a href="/login/" class="page-scroll">Quit</a></li>
+                {% else %}
+                    <li>
+                        <a href="/login/" class="">Log in/Sign up</a>
+                    </li>
+                {% endif %}
+                {% if user %}
+                    {% if user.permission==100 %}
+                        <li>
+                            <a href="/admin/?manager={{ user.username }}" class="">manage</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+            {% if user %}
+                <script>
+                    var permi = '' +{{ user.permission }};
+                    switch (permi) {
+                        case "1":
+                            $('.to3').css('background-color', '#aac4bc');
+                            break;
+                        case "2":
+                            $('.to3').css('background-color', '#ae853b');
+                            break;
+                        case "3":
+                            $('.to3').css('background-color', '#dfdc5d');
+                            break;
+                        case "100":
+                            $('.to3').css('background-color', '#ede4b8');
+                            break;
+                        default:
+                            $('.to3').css('background-color', 'white');
+                    }
+                </script>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<section id="gallery" class="parallax-section">
+    <div class="section-title">
+        <br>
+        <br>
+        <br>
+        <br>
+        <h1>
+            Demo
+        </h1>
+        <br>
+        <br>
+        <br>
+    </div>
+    <div class="container">
+        <div class="row" style="text-align: center">
+{#            <div class="col-lg-2" style="width: 14%;height: 300px;">#}
+{#                <h5>#}
+{#                    Product#}
+{#                </h5>#}
+{#                <a href="/masterpoint/"><img src="/static/images/graph_data/product3D.png" style="width: 150px;height: 150px;"></a>#}
+{#            </div>#}
+
+            <div class="col-lg-2" style="width: 25%;height: 350px;">
+                <h3 style="font-weight:normal">
+                    geography
+                </h3>
+                <a href="/master/"><img src="/static/images/master/icon/globemap.png" style="width: 200px;height: 200px;"></a>
+            </div>
+            <div class="col-lg-2" style="width: 25%;height: 350px;">
+                <h3 style="font-weight:normal">
+                    world geography
+                </h3>
+                <a href="/geo/world/"><img src="/static/images/geogoo/geo_world.png" style="width: 200px;height: 200px;"></a>
+            </div>
+            <div class="col-lg-2" style="width: 25%;height: 350px;">
+					<h3 style="font-weight:normal">
+						Bus Route
+					</h3>
+					<a href="/BusRoute/"><img src="/static/images/geogoo/bus.jpg" style="width: 200px;height: 200px;"></a>
+				</div>
+				<div class="col-lg-2" style="width: 25%;height: 350px;">
+					<h3 style="font-weight:normal">
+						PM2.5
+					</h3>
+					<a href="/PM25/"><img src="/static/images/geogoo/PM25.jpg" style="width: 200px;height: 200px;"></a>
+				</div>
+        </div>
+
+    </div>
+</section>
+
+<section id="gallery" class="parallax-section">
+    <div class="section-title">
+        <h1>
+            Video
+        </h1>
+    </div>
+    <div class="container">
+        <br/>
+        <div class="row">
+                     <div class = "col-lg-6">
+                         <h3 style="font-weight:normal">大学生择校分析系统</h3>
+                <video controls autoplay loop muted>
+                    <source src="../static/videos/school.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                </video>
+            </div>
+                       <div class = "col-lg-6">
+                           <h3 style="font-weight:normal">青岛市重金属污染分析平台</h3>
+                <video controls autoplay loop muted>
+                    <source src="../static/videos/color.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+            <div class="row">
+                 <div class = "col-lg-6">
+                     <h3 style="font-weight:normal">文本合同分析平台</h3>
+                <video controls autoplay loop muted>
+                    <source src="../static/videos/fawugoo.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class = "col-lg-6">
+                <h3 style="font-weight:normal">雷电仿真系统</h3>
+                <video controls autoplay loop muted>
+                    <source src="../static/videos/thunder.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <div class="row">
+                 <div class = "col-lg-6">
+                     <h3 style="font-weight:normal">济南市空气污染分析平台</h3>
+                <video controls autoplay loop muted>
+                    <source src="../static/videos/exam1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                </video>
+            </div>
+
+
+
+                 <div class = "col-lg-6">
+                     <h3 style="font-weight:normal">社交网络分析平台</h3>
+                <video controls autoplay loop muted>
+                    <source src="../static/videos/NetworkVis .mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                </video>
+            </div>
+ </div>
+
+    </div>
+    <br>
+    <br>
+</section>
+
+
+
+{# <section id="gallery1" class="parallax-section">
+    <div class="section-title">
+        <h1>
+            Report
+        </h1>
+    </div>
+    <div class="container">
+        <div class="row" style="text-align: center">
+            <div class="col-lg-2" style="width: 14%;height: 300px;">
+                <h5>
+                    report
+                </h5>
+                <a href="/static/data/gallery/gallery.pdf" target="_blank" class="smoothScroll" style="font-weight: normal;color:#BBBBBF;font-size: 25px;"><img src="/static/images/gallery/report.png" style="width: 150px;height: 150px;"></a>
+                </div>
+        </div>
+
+
+    </div>
+</section>
+ #}
+
+<script src="/static/js/bootstrap/jquery.js"></script>
+<script src="/static/js/bootstrap/bootstrap.min.js"></script>
+<script src="/static/js/bootstrap/jquery.parallax.js"></script>
+<script src="/static/js/bootstrap/modernizr.custom.js"></script>
+<script src="/static/js/bootstrap/SmoothScroll.js"></script>
+<script src="/static/js/bootstrap/main.js"></script>
+<script src="/static/js/bootstrap/custom.js"></script>
+</body>
+</html>

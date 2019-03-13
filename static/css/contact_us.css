@@ -1,0 +1,67 @@
+#contact {
+  color: white;
+  padding-top: 100px;
+  text-align: center;
+}
+#contact {
+  background-size: cover;
+  background-position: center center;
+}
+
+#contact-form {
+  padding-top: 22px;
+}
+
+#contact .text-success,
+#contact .text-danger {
+  display: none;
+  padding: 0 0 5px 20px;
+}
+
+#contact .form-control {
+  border: none;
+  box-shadow: none;
+  font-size: 18px;
+  font-weight: normal;
+  margin-bottom: 22px;
+  -webkit-transition: all ease-in-out 0.4s;
+  transition: all ease-in-out 0.4s;
+}
+
+#contact .form-control:focus {
+  border-color: #d9d9d9;
+}
+
+#contact input {
+  height: 55px;
+  line-height: 45px;
+}
+
+#contact .section-btn {
+  margin: 5px 0 0 0;
+}
+
+#contact button#cf-submit {
+  background: transparent;
+  border: none;
+  padding: 0;
+  line-height: 50px;
+}
+
+footer {
+  padding-top: 50px;
+  padding-bottom: 120px;
+}
+
+footer h3 {
+  padding-top: 12px;
+  color: white;
+}
+
+footer a {
+  color: white;
+}
+
+footer .copyright-text {
+  padding-top: 42px;
+}

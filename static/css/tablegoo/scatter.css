@@ -1,0 +1,44 @@
+
+.scatter_axis,
+.scatter_frame {
+  shape-rendering: crispEdges;
+}
+.scatter_frame {
+  fill: none;
+  stroke: #aaa;
+}
+#scatter_circle.hidden {
+  fill: #ccc !important;
+}
+
+
+.scatter_bar {
+  fill: #777;
+}
+.extent {
+  fill: #000;
+  fill-opacity: .125;
+  stroke: #fff;
+}
+
+  .scatter_svg {
+  font: 10px sans-serif;
+  padding-left: 20px;
+  display: block;
+  margin: 0px;
+}
+
+
+.scatter_axis line {
+  stroke: #ddd;
+}
+
+.scatter_axis path {
+  display: none;
+}
+
+
+
+#scatter_circle {
+  fill-opacity: .7;
+}

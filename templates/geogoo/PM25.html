@@ -1,0 +1,377 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/extension/bmap.min.js"></script>
+<script src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+<div id="main" style="width:1200px; height:600px;"></div>
+<script type="text/javascript">
+	// 基于准备好的dom，初始化echarts实例
+	var myChart = echarts.init(document.getElementById('main'));
+	var geoCoordMap = {
+		'洪湖': [114.129336, 22.572092],
+		'下陂': [114.359258, 22.769506],
+		'华侨城': [113.990586, 22.540615],
+		'荔园': [113.931409, 22.530234],
+		'横岗': [113.179616, 22.976413],
+		'福永': [113.186648, 22.635161],
+		'葵涌': [114.430456, 22.636232],
+		'盐田': [114.243432, 22.563438],
+		'南油': [113.29995, 23.093012],
+		'南澳': [114.497807, 22.540254],
+		'观澜': [114.104299, 22.751022],
+		'梅沙': [114.314901, 22.599809],
+		'坪山': [114.350474, 22.716233],
+		'松岗': [0.0, 0.0],
+		'西乡': [113.119939, 22.985434],
+		'龙岗': [114.254454, 22.726017],
+		'沙井': [0.0, 0.0],
+		'南湖': [114.132991, 22.549749],
+		'光明': [113.256857, 23.11403]
+	};
+
+	var convertData = function (data) {
+		var res = [];
+		for (var i = 0; i < data.length; i++) {
+			var geoCoord = geoCoordMap[data[i].name];
+			if (geoCoord) {
+				res.push(geoCoord.concat(data[i].value));
+			}
+		}
+		return res;
+	};
+
+	option = {
+		title: {
+			text: '深圳PM2.5检测热力图',
+			subtext: '',
+			sublink: 'http://www.pm25.in',
+			left: 'center',
+			textStyle: {
+				color: '#f00'
+			}
+		},
+		visualMap: {
+			min: 0,
+			max: 500,
+			splitNumber: 5,
+			inRange: {
+				color: ['#d94e5d', '#eac736', '#50a3ba'].reverse()
+			},
+			textStyle: {
+				color: '#fff'
+			}
+		},
+		bmap: {
+			center: [114.1177900689, 22.5684426191],
+			zoom: 11,
+			roam: true
+		},
+		series: [{
+			name: 'AQI',
+			type: 'heatmap',
+			coordinateSystem: 'bmap',
+			data: convertData([{
+				'name': '洪湖',
+				'value': 69
+			}, {
+				'name': '下陂',
+				'value': 216
+			}, {
+				'name': '华侨城',
+				'value': 150
+			}, {
+				'name': '荔园',
+				'value': 291
+			}, {
+				'name': '横岗',
+				'value': 0
+			}, {
+				'name': '福永',
+				'value': 72
+			}, {
+				'name': '葵涌',
+				'value': 111
+			}, {
+				'name': '盐田',
+				'value': 69
+			}, {
+				'name': '南油',
+				'value': 180
+			}, {
+				'name': '南澳',
+				'value': 150
+			}, {
+				'name': '洪湖',
+				'value': 96
+			}, {
+				'name': '南澳',
+				'value': 117
+			}, {
+				'name': '观澜',
+				'value': 327
+			}, {
+				'name': '盐田',
+				'value': 135
+			}, {
+				'name': '荔园',
+				'value': 84
+			}, {
+				'name': '福永',
+				'value': 0
+			}, {
+				'name': '南油',
+				'value': 84
+			}, {
+				'name': '梅沙',
+				'value': 147
+			}, {
+				'name': '坪山',
+				'value': 66
+			}, {
+				'name': '福永',
+				'value': 336
+			}, {
+				'name': '荔园',
+				'value': 204
+			}, {
+				'name': '下陂',
+				'value': 150
+			}, {
+				'name': '福永',
+				'value': 0
+			}, {
+				'name': '南澳',
+				'value': 129
+			}, {
+				'name': '松岗',
+				'value': 87
+			}, {
+				'name': '西乡',
+				'value': 156
+			}, {
+				'name': '南油',
+				'value': 111
+			}, {
+				'name': '观澜',
+				'value': 186
+			}, {
+				'name': '洪湖',
+				'value': 156
+			}, {
+				'name': '龙岗',
+				'value': 231
+			}, {
+				'name': '南澳',
+				'value': 201
+			}, {
+				'name': '西乡',
+				'value': 138
+			}, {
+				'name': '西乡',
+				'value': 84
+			}, {
+				'name': '下陂',
+				'value': 84
+			}, {
+				'name': '洪湖',
+				'value': 255
+			}, {
+				'name': '沙井',
+				'value': 0
+			}, {
+				'name': '梅沙',
+				'value': 162
+			}, {
+				'name': '福永',
+				'value': 0
+			}, {
+				'name': '龙岗',
+				'value': 558
+			}, {
+				'name': '福永',
+				'value': 0
+			}, {
+				'name': '南湖',
+				'value': 159
+			}, {
+				'name': '华侨城',
+				'value': 174
+			}, {
+				'name': '荔园',
+				'value': 117
+			}, {
+				'name': '福永',
+				'value': 300
+			}, {
+				'name': '南澳',
+				'value': 165
+			}, {
+				'name': '沙井',
+				'value': 219
+			}, {
+				'name': '南油',
+				'value': 246
+			}, {
+				'name': '洪湖',
+				'value': 144
+			}, {
+				'name': '松岗',
+				'value': 156
+			}, {
+				'name': '沙井',
+				'value': 183
+			}, {
+				'name': '坪山',
+				'value': 0
+			}, {
+				'name': '福永',
+				'value': 225
+			}, {
+				'name': '横岗',
+				'value': 0
+			}, {
+				'name': '横岗',
+				'value': 0
+			}, {
+				'name': '观澜',
+				'value': 228
+			}, {
+				'name': '华侨城',
+				'value': 96
+			}, {
+				'name': '华侨城',
+				'value': 162
+			}, {
+				'name': '葵涌',
+				'value': 90
+			}, {
+				'name': '南湖',
+				'value': 0
+			}, {
+				'name': '西乡',
+				'value': 84
+			}, {
+				'name': '光明',
+				'value': 222
+			}, {
+				'name': '梅沙',
+				'value': 120
+			}, {
+				'name': '横岗',
+				'value': 240
+			}, {
+				'name': '洪湖',
+				'value': 171
+			}, {
+				'name': '南湖',
+				'value': 342
+			}, {
+				'name': '华侨城',
+				'value': 144
+			}, {
+				'name': '下陂',
+				'value': 84
+			}, {
+				'name': '下陂',
+				'value': 138
+			}, {
+				'name': '沙井',
+				'value': 228
+			}, {
+				'name': '南湖',
+				'value': 195
+			}, {
+				'name': '盐田',
+				'value': 114
+			}, {
+				'name': '盐田',
+				'value': 135
+			}, {
+				'name': '葵涌',
+				'value': 87
+			}, {
+				'name': '盐田',
+				'value': 123
+			}, {
+				'name': '盐田',
+				'value': 117
+			}, {
+				'name': '沙井',
+				'value': 207
+			}, {
+				'name': '横岗',
+				'value': 246
+			}, {
+				'name': '坪山',
+				'value': 87
+			}, {
+				'name': '南湖',
+				'value': 0
+			}, {
+				'name': '松岗',
+				'value': 0
+			}, {
+				'name': '龙岗',
+				'value': 171
+			}, {
+				'name': '洪湖',
+				'value': 105
+			}, {
+				'name': '横岗',
+				'value': 0
+			}, {
+				'name': '南湖',
+				'value': 132
+			}, {
+				'name': '梅沙',
+				'value': 78
+			}, {
+				'name': '下陂',
+				'value': 0
+			}, {
+				'name': '横岗',
+				'value': 0
+			}, {
+				'name': '松岗',
+				'value': 0
+			}, {
+				'name': '下陂',
+				'value': 246
+			}, {
+				'name': '福永',
+				'value': 0
+			}, {
+				'name': '下陂',
+				'value': 0
+			}, {
+				'name': '沙井',
+				'value': 153
+			}, {
+				'name': '观澜',
+				'value': 198
+			}, {
+				'name': '沙井',
+				'value': 177
+			}, {
+				'name': '坪山',
+				'value': 216
+			}, {
+				'name': '南油',
+				'value': 159
+			}, {
+				'name': '光明',
+				'value': 504
+			}, {
+				'name': '福永',
+				'value': 0
+			}, {
+				'name': '坪山',
+				'value': 99
+			}, {
+				'name': '龙岗',
+				'value': 117
+			}])
+		}]
+	};
+
+	// 使用刚指定的配置项和数据显示图表。
+	myChart.setOption(option);
+</script>

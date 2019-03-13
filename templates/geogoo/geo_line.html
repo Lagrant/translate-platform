@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap/style.css">
+    <script type="text/javascript" src="/static/js/bootstrap/jquery-1.9.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap/mdui.css">
+    <link rel="stylesheet" href="/static/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap/tooplate-style.css">
+    <title>Geogrophy data</title>
+    <style>
+        html, body, #container {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar custom-navbar navbar-fixed-top" role="navigation" style="background: black">
+    <div class="container">
+
+        <!-- NAVBAR HEADER -->
+        <div class="navbar-header">
+            <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon icon-bar"></span>
+                <span class="icon icon-bar"></span>
+                <span class="icon icon-bar"></span>
+            </button>
+            <!-- lOGO -->
+            <a href="#" class="navbar-brand">DaGoo!</a>
+        </div>
+
+        <!-- MENU LINKS -->
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="smoothScroll"><a href="/index" id="home_page">Home</a></li>
+                <li class="smoothScroll"><a href="#" id="geo_admin">Administration</a></li>
+                <li class="smoothScroll"><a href="/geo/points/" id="geo_points">Points</a></li>
+                <li class="smoothScroll"><a href="/geo/line/" id="geo_line">Line</a></li>
+                <li class="smoothScroll"><a href="/geo/index/">Back</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="container" style="margin-top: 90px;float: left;"></div>
+<script src="//webapi.amap.com/loca?v=1.2.0&key=2dd663dd485017c4b832632ff9751da0"></script>
+<script src="/static/data/geogoo/geo_line.js"></script>
+<script>
+    var map = Loca.create('container', {
+        mapStyle: 'amap://styles/26fc904bd43d8b834219809619ba4aea',
+        features: ['bg', 'road'],
+        center: [108.149185, 33.663153],
+        zoom: 5,
+        pitch: 40,
+    });
+
+    var layer = Loca.visualLayer({
+        container: map,
+        fitView: true,
+        type: 'line',
+        shape: 'line'
+    });
+
+    layer.setData(geo_line, {
+        lnglat: 'line'
+    });
+
+    layer.setOptions({
+        style: {
+            // 3D Line 不支持设置线宽，线宽为 1px
+            // borderWidth: 1,
+            // 曲率 [-1, 1] 区间
+            curveness: 1,
+            opacity: 0.8,
+            color: '#5695F6'
+        }
+    });
+
+    layer.render();
+
+</script>
+</body>
+</html>

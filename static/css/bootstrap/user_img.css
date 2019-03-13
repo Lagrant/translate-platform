@@ -1,0 +1,47 @@
+/*{#图片的大小#}*/
+.to {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -15px;
+    margin-top: -15px;
+}
+
+/*{#图片的内层夹层#}*/
+.to1 {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: black;
+    position: relative;
+}
+
+/*{#图像最外层的圆圈，它的颜色就是框的颜色#}*/
+.to2 {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -16px;
+    margin-top: -16px;
+}
+
+/*{#最外层框架#}*/
+.to3 {
+    margin-top: -15px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: white;
+    /*{# 普通用户 #}*/
+    /*{#background-color: #aac4bc;{# 初级会员 #}*/
+    /*{#background-color: #ae853b;{# 中级会员 #}*/
+    /*{#background-color: #dfdc5d;{# 高级会员 #}*/
+    /*{#background-color: #ede4b8;{# 管理员 #}*/
+    position: relative;
+}

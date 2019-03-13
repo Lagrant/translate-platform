@@ -1,0 +1,21 @@
+#graph_layout2d{
+  background: black;
+  padding-top: 5%;
+  padding-bottom: 5%;
+  text-align: center;
+  color: white;
+}
+
+a{
+  cursor: pointer;
+}
+
+.table_upload{
+    cursor: pointer;
+    padding-bottom: 60px;
+}
+
+.graph2d_img{
+   width: 14%;
+   height: 200px;
+}

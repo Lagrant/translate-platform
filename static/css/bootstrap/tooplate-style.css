@@ -1,0 +1,425 @@
+
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,700');
+
+body {
+  background: black;
+  font-family: 'Source Sans Pro', sans-serif;
+  overflow-x: hidden;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+/*---------------------------------------
+  TYPOGRAPHY              
+-----------------------------------------*/
+
+h1,h2,h3,h4,h5,h6 {
+  font-weight: 300;
+}
+
+h1 {
+  font-size: 40px;
+  font-weight: 200;
+  line-height: 50px;
+}
+
+h2 {
+  font-size: 30px;
+  line-height: 40px;
+  margin-top: 0;
+}
+
+h3 {
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 32px;
+}
+
+h4 {
+  color: #505050;
+  font-size: 18px;
+  line-height: 28px;
+}
+
+p {
+  color: white;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 29px;
+  letter-spacing: 0.5px;
+}
+
+.tlinks{text-indent:-9999px;height:0;line-height:0;font-size:0;overflow:hidden;}
+
+.smart-margin-bottom-20 {
+    margin-left: 20px;
+margin-top: 30px;
+margin-bottom: 20px !important;
+}
+/*---------------------------------------
+  BUTTONS               
+-----------------------------------------*/
+
+.btn{
+letter-spacing:.6px;
+font-size:16px;
+-webkit-font-smoothing:subpixel-antialiased;
+-webkit-transition:border .25s linear,color .25s linear,background-color .25s linear;
+transition:border .25s linear,color .25s linear,background-color .25s linear
+}
+.btn-dark{
+color:#fff;
+border:none;
+border-radius:0;
+background-color:#414142
+}
+.btn-dark:hover{
+color:#fff;
+border:none;
+background-color:#212122
+}
+.btn-default{
+color:#212122;
+border:none;
+border-radius:0;
+}
+.btn-default:hover{
+color:#212122;
+border:none;
+}
+.section-btn {
+  margin: 32px 0 0 0;
+  padding: 0;
+}
+
+.section-btn a,
+.section-btn button {
+  line-height: 45px;
+  -webkit-perspective: 1000px;
+  -moz-perspective: 1000px;
+  perspective: 1000px;
+  color: #ffffff;
+  font-weight: normal;
+}
+
+.section-btn a span,
+.section-btn button span {
+  position: relative;
+  display: inline-block;
+  font-size: 18px;
+  font-weight: normal;
+  letter-spacing: 0.5px;
+  padding: 0 25px;
+  background: rgb(30, 33, 37);
+  border-radius: 1px;
+  -webkit-transition: -webkit-transform 0.3s;
+  -moz-transition: -moz-transform 0.3s;
+  transition: transform 0.3s;
+  -webkit-transform-origin: 50% 0;
+  -moz-transform-origin: 50% 0;
+  transform-origin: 50% 0;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+.csstransforms3d .section-btn a span::before,
+.csstransforms3d .section-btn button span::before {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  border-radius: 1px;
+  color: #ffffff;
+  padding: 0 25px;
+  content: attr(data-hover);
+  -webkit-transition: background 0.3s;
+  -moz-transition: background 0.3s;
+  transition: background 0.3s;
+  -webkit-transform: rotateX(-90deg);
+  -moz-transform: rotateX(-90deg);
+  transform: rotateX(-90deg);
+  -webkit-transform-origin: 50% 0;
+  -moz-transform-origin: 50% 0;
+  transform-origin: 50% 0;
+}
+
+.section-btn a:hover span,
+.section-btn a:focus span,
+
+.section-btn button:hover span,
+.section-btn button:focus span {
+  -webkit-transform: rotateX(90deg) translateY(-22px);
+  -moz-transform: rotateX(90deg) translateY(-22px);
+  transform: rotateX(90deg) translateY(-22px);
+}
+
+.csstransforms3d .section-btn a:hover span::before,
+.csstransforms3d .section-btn a:focus span::before,
+
+.csstransforms3d .section-btn button:hover span::before,
+.csstransforms3d .section-btn button:hover span::before {
+  background: #000000;  
+}
+
+.button_blue {
+    display: inline-block;
+    height: 41px;
+    border-radius: 4px;
+    background: #555555;
+    border: none;
+    cursor: pointer;
+    border-bottom: 3px solid #333333;
+    *border-bottom: none;
+    color: #fff;
+    font-size: 16px;
+    padding: 0 10px;
+    *width: 140px;
+    text-align: center;
+    outline: none;
+    font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
+}
+
+input.button_blue:hover {
+    background: #848484;
+    border-bottom: 3px solid #555555;
+    *border-bottom: none;
+    color: #fff;
+    text-decoration: none;
+}
+
+/*---------------------------------------
+  GENERAL               
+-----------------------------------------*/
+
+html{
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: rgb(30, 33, 37);
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+}
+
+a:hover, a:active, a:focus {
+  color: #000000;
+  outline: none;
+}
+
+.section-title {
+  position: relative;
+  padding-bottom: 15px;
+  text-align: center;
+}
+
+.parallax-section {
+  background-attachment: fixed !important;
+  background-size: cover !important;
+}
+
+/*---------------------------------------
+  MENU             
+-----------------------------------------*/
+
+.custom-navbar {
+  margin-bottom: 0;
+  background-color: rgb(30, 33, 37);
+  padding: 0px 0;
+}
+
+.custom-navbar .navbar-brand {
+  color: #f9f9f9;
+  font-weight: normal;
+  font-size: 30px;
+}
+
+.custom-navbar .nav li a {
+  font-size: 16px;
+  font-weight: normal;
+  color: #f9f9f9;
+  letter-spacing: 0.5px;
+  -webkit-transition: all ease-in-out 0.4s;
+  transition: all ease-in-out 0.4s;
+  padding: 0;
+  margin: 20px 20px;
+  text-transform: capitalize;
+}
+
+.custom-navbar .navbar-nav > li > a:hover,
+.custom-navbar .navbar-nav > li > a:focus {
+  background-color: transparent;
+  color: #ffffff;
+}
+
+.custom-navbar .navbar-nav li a:after {
+  content: "";
+  position: absolute;
+  display: block;
+  width: 0px;
+  height: 2px;
+  margin: auto;
+  background: transparent;
+  transition: width .3s ease, background-color .3s ease;
+}
+
+.custom-navbar .navbar-nav li a:hover:after,
+.custom-navbar .nav li.active > a:after {
+  background: #ffffff;
+  color: #ffffff;
+  width: 100%;
+}
+
+.custom-navbar .nav li.active > a {
+  background-color: transparent;
+  color: #ffffff;
+}
+
+.custom-navbar .navbar-toggle {
+  border: none;
+  padding-top: 10px;
+}
+
+.custom-navbar .navbar-toggle {
+  background-color: transparent;
+}
+
+.custom-navbar .navbar-toggle .icon-bar {
+  background: #ffffff;
+  border-color: transparent;
+}
+
+@media(min-width:768px) {
+  .custom-navbar {
+    background: rgb(30, 33, 37);
+  }
+  .custom-navbar.top-nav-collapse {
+    background: rgb(30, 33, 37);
+    padding: 0px 0;
+  }
+}
+
+/*---------------------------------------
+  HOME             
+-----------------------------------------*/
+
+#home {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+   align-items: center;
+  height: 100vh;
+  position: relative;
+  padding-top: 10em;
+}
+
+#home h1 {
+  color: #ffffff;
+  font-size: 5em;
+  line-height: 1.2em;
+}
+
+#home p {
+  color: white;
+}
+
+#home .overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.75);
+}
+
+#home video {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -100;
+  transform: translateX(-50%) translateY(-50%);
+  background-size: cover;
+  transition: 1s opacity;
+}
+
+#home .select_container{
+    padding-bottom: 20px;
+    color:whitesmoke;
+  font-weight: 300;
+}
+
+/*---------------------------------------
+  GET DATA
+-----------------------------------------*/
+
+.getdata{
+    display:none;
+}
+
+/*---------------------------------------
+  MOBILE RESPONSIVE              
+-----------------------------------------*/
+
+@media (max-width: 992px) {
+  #home h1 {
+    font-size: 4em;
+    line-height: normal;
+  }
+}
+
+@media (max-width: 980px) {
+  h1 {
+    font-size: 30px;
+    line-height: inherit;
+  }
+
+  #home {
+    padding-top: 0em;
+  }
+}
+
+@media (max-width: 770px) {
+  #home h1 {
+    font-size: 3.5em;
+  }
+}
+
+@media (max-width: 767px) {
+  .custom-navbar {
+    padding: 10px 0;
+  }
+  .custom-navbar .nav li a {
+    display: inline-block;
+    line-height: 15px;
+    margin-bottom: 0;
+  }
+  .custom-navbar .nav li:last-child a {
+    margin-bottom: 5px;
+  }
+}
+
+
+@media (max-width: 580px) {
+  h1 {
+    font-size: 26px;
+  }
+
+  #home {
+    height: 100vh;
+  }
+}

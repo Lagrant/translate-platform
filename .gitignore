@@ -1,0 +1,9 @@
+__pycache__/
+examples/
+venv/
+static/videos/
+static/PDF/
+static/images/
+static/user/
+static/data/
+.idea/

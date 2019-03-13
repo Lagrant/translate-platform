@@ -1,0 +1,266 @@
+<html>
+<head>
+    <title>DaGoo Geography</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0"/>
+    <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
+    <meta charset="utf-8">
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
+
+    <meta property="og:title" content="The Globe of Economic Complexity: Visualize $15 Trillion of World Exports">
+    <meta name="description" content="One dot equals $100M of exports">
+    <meta property="og:description" content="One dot equals $100M of exports">
+    <meta property="og:image" content="http://globe.cid.harvard.edu/images/preview.png">
+    <meta property="og:url" content="http://globe.cid.harvard.edu">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link href="/static/css/master/style.css" rel="stylesheet" type="text/css">
+    <link rel="icon" href="/static/images/master/favicon.ico"/>
+
+    <script src="/static/js/bootstrap/jquery-1.11.3.js"></script>
+    <link href='/static/css/master/Rajdhani.css' rel='stylesheet' type='text/css'>
+    <link href="/static/css/master/select2.css" rel="stylesheet" type="text/css">
+    <script src="/static/js/master/select2.min.js"></script>
+</head>
+
+<body id="dody">
+
+<!--begin首页-->
+<div id="storyPrompt">
+    <div id="description">
+        <div id="loaded">加载中...</div>
+    </div>
+
+</div>
+<!--end首页-->
+
+<!--加载过程中的动态gif展示来让用户等待异步请求-->
+<div id="spinner"></div>
+
+<div id="UI" style="display:none">
+    <!--最终页面的左侧-->
+    <div id="sideBar">
+        <div class="optionSeparator">&nbsp;</div>
+        <div id="visualizations"></div><!--用于存放可视化产品的button，在UI.js里面定义-->
+
+        <div id="buttons">
+            <div id="countrySection">
+                <div class="selectionBox">
+                    <select class="countrySelection">
+                    </select>
+                </div>
+            </div>
+            <div id="productSection" style="display:none">
+                <div class="productBox">
+                    <select class="productSelection">
+                    </select>
+                </div>
+            </div>
+            <div class="optionSeparator">&nbsp;</div>
+            <div id="showAbout">关于</div>
+            <div id="fullscreen">全屏模式</div>
+            <div id="master" onclick="window.location.href='/master/'">地图模式</div>
+            <div id="backtohome" onclick="window.location.href='/'">返回主页</div>
+        </div>
+
+    </div>
+
+
+    <!--盛放每个country的标签-->
+    <div id="countries"></div>
+
+    <!--主页正下方数据类型选择部分-->
+    <div id="categories"></div>
+
+    <!--当前被hover的标签-->
+    <div id="pointer"></div>
+
+    <!--当前线的内容-->
+    <div id="linelink"></div>
+
+    <!--对每个模型的介绍，在hover该模型的button的时候出现-->
+    <div id="modeDescription"></div>
+
+    <!--在产品空间中点击某产品以后出现在产品旁边的label-->
+    <div id="productlabel"></div>
+
+    <div id="noWebGL" style="display:none">
+        <div id='description'>经济复杂性的地球动态地绘制了整个世界的商品生产创造一个全球各国的经济景观。
+            <br/> 这个项目是用WebGL建造并且需要使用它才能够正常运行，您当前的浏览器没有达到要求<br/> 打开 <a
+                    href='https://get.webgl.org/'>get.webgl.org</a> 以解决问题。
+        </div>
+    </div>
+
+    <!--点击about以后在右侧划出-->
+    <div id="aboutText" style="display:none">
+        <span class="aboutTitle">关于</span><span style="float:right"><div id="closeAbout">关闭 x  </div></span>
+        <div class="optionSeparator">&nbsp;</div>
+        <div>由<a href="#" target="_blank">林子童</a>设计完成, 由<a
+                href="" target="_blank">成生辉</a>指导监督完成,灵感来源于
+            <a href="http://globe.cid.harvard.edu/" target="_blank">The Globe of Economic Complexity</a> .
+        </div>
+        <div class="optionSeparator">&nbsp;</div>
+        <div class="aboutTitle">数据来源</div>
+        <div>数据由<a href="https://github.com/cid-harvard/atlas-data" target="_blank">CID's
+            2012 world export data</a>中的产品和贸易数据加工而成, 从<a href="http://comtrade.un.org/" target="_blank">United
+            Nations Comtrade database.</a>中获取
+        </div>
+        <div class="optionSeparator">&nbsp;</div>
+        <div class="aboutTitle">技术</div>
+        <div>这个可视化产品是有WebGL构建，我们使用了JavaScript库中的Three.js来简化3D对象的创建和编辑。我们将会在项目完工后将代码放到Github上
+            进行共享
+        </div>
+        <div class="optionSeparator">&nbsp;</div>
+        <div class="aboutTitle">联系我们</div>
+        <div>如果您有任何问题、意见或者建议，欢迎直接发送邮件到lin_zitong@163.com</div>
+    </div>
+
+</div>
+</div>
+
+<!--vertexShader 着色器脚本，只能用类 C 的 GLSL 语言来写。
+为了能够在 JavaScript 中与着色器进行通信，我们会使用所谓的统一值 uniform，
+譬如我们在例子中使用语句“uniform vec3 color;” 传入外部数据，根据这个数据，
+我们会改变传入顶点的 color的值-->
+<script type="x-shader/x-vertex" id="vertexshader">
+	attribute float size;
+	attribute vec3 customColor;
+	varying vec3 vColor;
+	void main() {
+		vColor = customColor;
+		vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+		gl_PointSize = size * ( 300.0 / length( mvPosition.xyz ) );
+		gl_Position = projectionMatrix * mvPosition;
+	}
+
+
+
+
+
+
+</script>
+
+<script type="x-shader/x-fragment" id="fragmentshader">
+	uniform vec3 color;
+	uniform sampler2D texture;
+	varying vec3 vColor;
+	void main() {
+		gl_FragColor = vec4( color * vColor, 1.0 );
+		gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+	}
+
+
+
+
+
+
+</script>
+
+
+<!-- vertext shader a.k.a. pixel shader -->
+<script id="vertexShader1" type="x-shader/x-vertex">
+    attribute float side;
+    attribute vec3 prevPositions;
+    attribute vec3 nextPositions;
+    uniform float width;
+    uniform vec2 resolution;
+    varying vec2 vUv;
+
+    void main(){
+
+      vUv = uv;
+      float aspect = resolution.x / resolution.y;
+
+      mat4 pvm = projectionMatrix * modelViewMatrix;
+      vec4 currentV4 = pvm * vec4(position, 1.0);
+      vec4 prevV4 = pvm * vec4(prevPositions, 1.0);
+      vec4 nextV4 = pvm * vec4(nextPositions, 1.0);
+
+      vec2 currentV2 = currentV4.xy / currentV4.w;
+      currentV2.x *= aspect;
+
+      vec2 prevV2 = prevV4.xy / prevV4.w;
+      prevV2.x *= aspect;
+
+      vec2 nextV2 = nextV4.xy / nextV4.w;
+      nextV2.x *= aspect;
+
+      vec2 dir1 = normalize(nextV2 - currentV2);
+      vec2 dir2 = normalize(currentV2 - prevV2);
+      vec2 dir = normalize(dir1 + dir2);
+
+      vec2 normal = vec2( -dir.y, dir.x );
+
+      normal.x /= aspect;
+      normal *= width / 2.0;
+
+      vec4 offset = vec4(normal * side, 0.0, 1.0);
+      currentV4.xy += normal * side;
+
+      gl_Position = currentV4;
+
+    }
+
+
+
+
+
+
+</script>
+<!-- fragment shader a.k.a. pixel shader -->
+<script id="fragmentShader1" type="x-shader/x-vertex">
+    varying vec2 vUv;
+    uniform sampler2D map;
+    uniform vec3 uColor;
+    uniform bool useMap;
+    uniform float opacity;
+
+    void main() {
+
+      vec4 color = vec4(uColor, 1.0);
+      if (useMap) {
+        color *= texture2D(map, vUv.st);
+      }
+
+      gl_FragColor = vec4(color.xyz, opacity);
+
+    }
+
+
+
+</script>
+<script src="/static/js/master/build_three.js"></script>
+<script src="/static/js/master/LineWithWidth.js"></script><!--画一条有宽度的线的方法-->
+<script src="/static/js/master/build_three.js"></script>
+<script src="/static/js/master/Projector.js"></script>
+<script src="/static/js/master/noWebGL.js"></script><!--兼容性-->
+<script src="/static/js/master/spin.js"></script><!--加载时动画-->
+<script src="/static/data/master/anchors.js"></script><!--国家城市分布信息-->
+<script src="/static/js/master/UI2.js"></script><!--一些比较上层的封装好的事件和函数-->
+<script src="/static/js/master/labels.js"></script><!--管理标签-->
+<script src="/static/data/master/countryData.js"></script><!--各国编号、所属大洲、中心位置-->
+<script src="/static/js/master/THREE.GeoJSON.js"></script><!--关于边界线的绘画方法-->
+<script src='/static/js/master/cameraControls.js'></script><!--基本没读懂，关于相机的各种操作-->
+<script src='/static/js/master/THREE.FullScreen.js'></script><!--关于全屏的方法-->
+<script src='/static/js/master/ParticleLinks.js'></script><!--基本没读懂，关于连线-->
+<script src="/static/js/master/URLparser.js"></script><!--URL解析器-->
+<script src="/static/js/master/script2.js"></script>
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '/static/js/master/analytics.js', 'ga');
+
+    ga('create', 'UA-41291966-6', 'auto');
+    ga('send', 'pageview');
+</script>
+<script src='/static/js/master/THREEx.KeyboardState.js'></script><!--定义键盘事件-->
+
+</body>
+</html>

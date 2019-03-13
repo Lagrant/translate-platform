@@ -1,0 +1,333 @@
+<style>
+    .err_btn {
+        height: 20px;
+        line-height: 21px;
+        padding: 0 10px;
+        background: #404040;
+        border: 1px #404040 solid;
+        border-radius: 4px;
+        color: white;
+        display: inline-block;
+        text-decoration: none;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .err_btn:hover {
+        color: red;
+    }
+
+    #err_information {
+        list-style: circle;
+    }
+
+    .wrap {
+        overflow: auto;
+        width: auto;
+        height: auto;
+        margin: auto;
+    }
+
+    #test_err {
+        width: auto;
+        height: auto;
+        padding: 10px;
+    }
+
+    #table {
+        width: auto;
+        border: 1px solid black;
+        border-radius: 25px;
+        border-collapse: collapse;
+    }
+
+    #table_title {
+         font-family:"fantasy";
+        border: 1.5px solid black;
+        text-align: center;
+        height: auto;
+    }
+
+    td {
+        border: 0.7px solid black;
+        height: auto;
+        text-align: center;
+    }
+    .err_data {
+        color: red
+    }
+</style>
+
+<body>
+    <fieldset class="wrap" id="wrap">
+        <div  id="test_err">You can modify the wrong data or delete this set of data.</div>
+        <div id="err_nav">
+            <select id="select_method">
+                <option value="average">Fill in the average</option>
+                <option value="max">Fill in the maximum</option>
+                <option value="min">Fill in the minimum</option>
+                <option value="mid">Fill in the median</option>
+                <option id="delete" value="delete">Delete the line of the error</option>
+            </select>
+            <button class='button_blue' id="generate" onclick="s()">Confirm</button>
+          {#  <button class='button_blue' id="generate" onclick="return_data()">Return</button>#}
+        </div>
+        <div><p>     </p></div>
+
+        <table id="table">
+            <tr id="features">
+                {% for feature in frame %}
+                <td id="table_title">{{ feature }}</td>
+                {% endfor %}
+            </tr>
+        </table>
+    </fieldset>
+    <script>
+        var mean_array = new Array()
+        var max_array = new Array()
+        var min_array = new Array()
+        var mid_array= new Array()
+        var arrs = document.getElementById("title").getElementsByTagName('li'),
+            temps = [];
+
+        for (var j = 0; j < arrs.length; j++) {
+            temps.push(arrs[j].innerHTML)
+            var obj2 = eval("(" + temps + ")")
+            numArrays = obj2.slice(0, obj2.length).map((value) => {
+                return parseFloat(value);
+            })
+            var len = numArrays.length;
+            for (var i = 0; i < len; i++) {
+                if (String(numArrays[i]) == 'NaN') {
+                    numArrays.splice(i, 1);
+                    i = i - 1;
+                }
+            }
+            var len_no_str = numArrays.length
+
+            add_num = eval(numArrays.join("+"))
+            every_mean = Math.round(add_num / len_no_str)
+            every_max=Math.max(...numArrays)
+            every_min=Math.min(...numArrays)
+            mean_array.push(every_mean)
+            max_array.push(every_max)
+            min_array.push(every_min)
+            numArrays.sort()
+            var len_mid=Math.round(len_no_str/ 2)
+            mid_array.push(numArrays[len_mid])
+        }
+        console.log(mean_array)
+        var err_line = new Array()
+        var err_row = new Array()
+
+        function s() {
+            var options = $('#select_method option:selected');
+
+            if (options.val() == 'delete') {
+                yugi.del_all(table, err_line)
+                err_line.splice(0, err_line.length);
+            } else if (options.val() == 'average') {
+                mean();
+            }else if (options.val() == 'max') {
+                max();
+            }else if (options.val() == 'min') {
+                min();
+            }else if (options.val() == 'mid') {
+                mid();
+            }
+        }
+
+
+        var source_data = new Array()
+        var arr = document.getElementById("source_data").getElementsByTagName('li'),
+            temp = [];
+        for (var i = 0; i < arr.length; i++) {
+            temp.push(arr[i].innerHTML)
+        }
+        for (var i = 0; i < temp.length; i++) {
+            temp1 = temp[i].replace('[', '');
+            temp2 = temp1.replace(']', '');
+            temp3 = temp2.split(",");
+            numArray = temp3.slice(1, temp.length).map((value) => {
+                return parseFloat(value);
+            })
+            temp_str = temp3[0].replace("'", '');
+            temp_str2 = temp_str.replace("'", '');
+            numArray.unshift(temp_str2);
+            var add_btn = "<a href='###'class='err_btn' onclick='yugi.modify(table,this)'>Modify</a> ";
+            var add_btn1 = "<a href='###'class='err_btn' onclick='yugi.del(table,this)'>Delete</a>"
+            add_2 = add_btn.toString();
+            add_3 = add_btn1.toString();
+            numArray.push(add_2);
+            numArray.push(add_3);
+            source_data.push(numArray);
+        }
+        console.log('source_data', source_data)
+        col = source_data[0].length;
+        var yugi = {
+
+            addRow: function(table) {
+                for (var j = 0; j < source_data.length; j++) {
+                    var test = source_data[j];
+
+                    var vals = test;
+
+                    var tr = table.insertRow(table.tBodies[0].rows.length);
+                    for (var i = 0; i < col; i++) {
+                        var td = tr.insertCell(tr.cells.length);
+                        var num_to_str = String(vals[i]);
+                        if (num_to_str == 'NaN') {
+                            var test_err = new Array();
+                            td.innerHTML = vals[i];
+                            td.id = 'err_data'+[j,i];
+                            td.setAttribute("class", "err_data")
+                            test_err.push(source_data[j][0]);
+                            err_line.push(j);
+                            err_row.push([j,i])
+                        }
+                        if (num_to_str == 'undefined') {
+                            td.innerHTML = vals[i];
+                            td.setAttribute("class", "err_data")
+                        } else {
+                            td.innerHTML = vals[i]
+                        }
+                    }
+                }
+
+            },
+            modify: function(table, row) {
+                var r = row.parentElement.parentElement,
+                    c = r.cells;
+                if (/.*Modify.*/g.test(row.innerHTML)) {
+                    for (var i = 0; i < c.length - 2; i++) {
+                        var ci = c[i];
+                        var txt = document.createElement("input");
+                        txt.type = "text";
+                        txt.value = ci.innerHTML;
+                        ci.innerHTML = "";
+                        ci.appendChild(txt);
+                    }
+                    row.innerHTML = "Save";
+                } else {
+                    for (var i = 0; i < c.length - 2; i++) {
+                        var ci = c[i];
+                        ci.innerHTML = ci.children[0].value;
+
+                    }
+                    row.innerHTML = "Modify";
+                }
+            },
+            del: function(table, row) {
+                var ind = row.parentElement.parentElement.rowIndex;
+                table.tBodies[0].deleteRow(ind);
+            },
+            del_all: function(table, row) {
+                var ind = row;
+                for (i = 0; i < ind.length; i++) {
+                    table.tBodies[0].deleteRow(ind[i] + 1 - i);
+                }
+            }
+        }
+
+        yugi.addRow(table);
+
+
+                            function mean() {
+                                for (i=0;i<err_row.length;i++){
+                                    console.log('ww',err_row[i])
+                                qqq='err_data'+err_row[i]
+                                    aaa=err_row[i][1]
+                                var tdobj = document.getElementById(qqq);
+                               tdobj.innerText = mean_array[aaa];
+                               console.log(aaa, mean_array[aaa])}
+                            }
+                             function max() {
+                                for (i=0;i<err_row.length;i++){
+                                    console.log('ww',err_row[i])
+                                qqq='err_data'+err_row[i]
+                                    aaa=err_row[i][1]
+                                var tdobj = document.getElementById(qqq);
+                               tdobj.innerText = max_array[aaa];
+                           }
+                            }
+                             function min() {
+                                for (i=0;i<err_row.length;i++){
+                                qqq='err_data'+err_row[i]
+                                aaa=err_row[i][1]
+                                var tdobj = document.getElementById(qqq);
+                               tdobj.innerText = min_array[aaa];
+                           }
+                            }
+                                                     function mid() {
+                                for (i=0;i<err_row.length;i++){
+                                qqq='err_data'+err_row[i]
+                                aaa=err_row[i][1]
+                                var tdobj = document.getElementById(qqq);
+                               tdobj.innerText = mid_array[aaa];
+                           }
+                            }
+
+
+
+        function return_data(results) {
+        var result2 = new Array();
+        var tb = document.getElementById('table'); // table 的 id
+        var rows = table.rows;
+        for (var i = 0; i < rows.length; i++) {
+            result2[i] = new Array();
+            for (var j = 0; j < rows[i].cells.length; j++) {
+                if (j < col - 2) {
+                    result2[i].push(rows[i].cells[j].innerHTML)
+                }
+            }
+        }
+        var res = result2
+               for( i=1;i<res.length;i++){
+                for( j=1;j<res[i].length;j++){
+                    transform_num=Number(res[i][j]);
+                    transform_num_str=(transform_num/2).toString();
+                    if( res[i][j]!='0' & transform_num/2==0){
+                    alert('Have spaces in the table')
+                        return false
+                }else if(transform_num_str==='NaN'){
+                    alert('Have String in the table')
+                        return false
+                }}}
+                    res.push([])
+                        $.ajax({
+                            url: '/data_workshop',
+                            type: 'POST',
+                            data: {
+                                json_data: JSON.stringify(res)
+                            },
+                            dataType: 'html',
+                            success:
+                                function (res) {//返回数据根据结果进行相应的处理,res数组的0位置是评价方法，1及其之后都是图片的编号
+                                    a = document.createElement('a');
+                                    a.href = '/data_workshop';
+                                    a.click();
+                                }
+                        });
+                        if (res[res.length - 1] == "") {
+                            res.pop();
+                        }
+                        callback && callback(res);
+
+
+
+        };
+    </script>
+    </head>
+    <div id="text" class="text">
+        <ul id="source_data" style="display: none">
+            {% for name in data %}
+            <li>{{ name }}</li>
+            {% endfor %}
+        </ul>
+        <ul id="title" style="display: none">
+            {% for titles in data_list %}
+            <li id="test">{{ titles }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>

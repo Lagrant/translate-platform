@@ -1,0 +1,103 @@
+body {
+    background-color: #e9f2f3;
+    color: black;
+}
+
+.intro {
+    margin: 0 auto;
+}
+
+.intro_table {
+    display: inline;
+    width: 220px;
+    float: left;
+    transition: 0.5s;
+}
+
+.intro_table:hover {
+    margin-left: 0;
+    margin-right: 0;
+    transition: 0.5s;
+    box-shadow: 0 0 20px white;
+}
+
+table {
+    width: 220px;
+    transition: 0.5s;
+}
+
+table:hover {
+    transition: 0.5s;
+}
+
+td {
+    text-align: center;
+    height: 45px;
+}
+
+th {
+    text-align: center;
+    height: 45px;
+}
+
+.to0{
+    width: 100px;
+    height: 100px;
+    margin-left: 60px;
+}
+
+/*{#图片的大小#}*/
+.to {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -15px;
+    margin-top: -15px;
+}
+
+/*{#图片的内层夹层#}*/
+.to1 {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: black;
+    position: relative;
+}
+
+/*{#图像最外层的圆圈，它的颜色就是框的颜色#}*/
+.to2 {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -16px;
+    margin-top: -16px;
+}
+
+/*{#最外层框架#}*/
+.to3/*, .to4*/ {
+    margin: 0 auto;
+    /*margin-top: -15px;*/
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: white;
+    /*{# 普通用户 #}*/
+    /*{#background-color: #aac4bc;{# 初级会员 #}*/
+    /*{#background-color: #ae853b;{# 中级会员 #}*/
+    /*{#background-color: #dfdc5d;{# 高级会员 #}*/
+    /*{#background-color: #ede4b8;{# 管理员 #}*/
+    position: relative;
+}
+.user{
+    margin-top: 200px;
+}
+.homepage{
+    width: 600px;
+    margin: 0 auto;
+}

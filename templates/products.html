@@ -1,0 +1,198 @@
+
+<html lang="en">
+<head>
+    <title>DaGoo Products</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../static/css/bootstrap/bootstrap.css">
+    <!-- MAIN CSS -->
+    <link rel="stylesheet" href="../static/css/bootstrap/tooplate-style.css">
+    <link rel="stylesheet" href="../static/css/products.css">
+    <link rel="stylesheet" href="../static/css/bootstrap/user_img.css">
+</head>
+<body>
+<!-- MENU -->
+<div class="navbar custom-navbar navbar-fixed-top" role="navigation">
+    <div class="container">
+        <!-- NAVBAR HEADER -->
+        <div class="navbar-header">
+            <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon icon-bar"></span>
+                <span class="icon icon-bar"></span>
+                <span class="icon icon-bar"></span>
+            </button>
+            <!-- lOGO -->
+            <a href="#" class="navbar-brand">DaGoo!</a>
+        </div>
+        <!-- MENU LINKS -->
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/" class="smoothScroll">Home</a></li>
+                <li><a href="/gallery/" class="smoothScroll">Gallery</a></li>
+                <li><a href="/about_us" class="smoothScroll">About us</a></li>
+                <li><a href="#" class="smoothScroll">Contact us</a></li>
+                <li>
+                    <div style="width: 2px; height: 20px; background-color: white; margin: 15px"></div>
+                </li>
+                {% if user %}
+                    <li class="user_img"><a class="page-scroll" href="/user/">
+                        <div class="to3" style="margin-top: -10px;">
+                            <div class="to2">
+                                <div class="to1">
+                                    <img class="to" src="/static/user/{{ user.email }}/img/user_img.jpg">
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    </li>
+                    <li><a href="/login/" class="page-scroll">Quit</a></li>
+                {% else %}
+                    <li>
+                        <a href="/login/" class="">Log in/Sign up</a>
+                    </li>
+                {% endif %}
+                {% if user %}
+                    {% if user.permission==100 %}
+                        <li>
+                            <a href="/admin/?manager={{ user.username }}" class="">manage</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+            {% if user %}
+                <script>
+                    var permi = '' +{{ user.permission }};
+                    switch (permi) {
+                        case "1":
+                            $('.to3').css('background-color', '#aac4bc');
+                            break;
+                        case "2":
+                            $('.to3').css('background-color', '#ae853b');
+                            break;
+                        case "3":
+                            $('.to3').css('background-color', '#dfdc5d');
+                            break;
+                        case "100":
+                            $('.to3').css('background-color', '#ede4b8');
+                            break;
+                        default:
+                            $('.to3').css('background-color', 'white');
+                    }
+                </script>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- HOME -->
+<div class="parallax-section" style="background-color: black;height: 2000px;">
+    <div class="container" style="color:white; align:center; ">
+        <div style="width: 80%;  text-align: center; padding-top: 150px;margin: 0 auto">
+            <br>
+            <div>
+                <p style="font-family:arial;text-align: justify;">
+                </p>
+                <p> DaGoo has four inseparable brothers: TableGoo, TextGoo, GeoGoo and GraphGoo. They are geniuses in
+                    different areas!</p>
+
+            </div>
+
+            <div class="leftDiv">
+                <a href="/clean"><img src="/static/images/clean_data/clean.PNG" style="width:150px;" alt=""/></a>
+            </div>
+            <div class="rightDiv">
+                <br>
+                <a href="/clean" style="color: white; font-size: 16px;"> CleanGoo! </a>
+                <br>
+                <h5 style="font-weight: normal;">Visually clean the data.</h5>
+            </div>
+
+
+            <div class="leftDiv">
+                <a href="/tablegoo"><img src="/static/images/table_data/table.png" style="width:150px;" alt=""/></a>
+            </div>
+            <div class="rightDiv">
+                <br>
+                <a href="/tablegoo" style="color: white; font-size: 16px;"> MultiGoo! </a>
+
+              <br><h5 style="font-weight: normal;">Multivariate data analysis - cluster, embedding, anomaly detection, regression,association analysis</h5>
+
+            </div>
+
+            </br>
+
+            <div class="leftDiv">
+                <a href="/textgoo"><img src="../static/images/text_data/text.png" style="width:150px;" alt=""/></a>
+            </div>
+            <div class="rightDiv">
+<br>
+                <a href="/textgoo" style="color: white; font-size: 16px;"> TextGoo! </a>
+                <br>
+                <h5 style="font-weight: normal;">Text data analysis- text recognition, word cloud and knowledge graph.</h5>
+
+            </div>
+            <br>
+
+            <div class="leftDiv">
+                <a href="/geo/"><img src="/static/images/geogoo/geo.png" style="width:150px;" alt=""/></a>
+            </div>
+            <div class="rightDiv">
+                <br/>
+                <a href="/geo/" style="color: white; font-size: 16px;"> GeoGoo! </a>
+                <br><h5 style="font-weight: normal;">Geographical data analysis - line, point, 2D and 3D map.</h5>
+
+            </div>
+            <br>
+
+            <div class="leftDiv">
+                <a href="/graphgoo"><img src="../static/images/graph_data/graph.png" style="width:150px;" alt=""/></a>
+            </div>
+            <div class="rightDiv">
+                <br/>
+                <a href="/graphgoo" style="color: white; font-size: 16px;"> GraphGoo! </a>
+                <br><h5 style="font-weight: normal;">Circular Layout, Chord Diagram,Tree Layout,Pack Layout,Radial layout,Grid Layout,Hierarchical Layout,Product3D,Product2D and Product Tower.</h5>
+
+
+            </div>
+            <br>
+
+
+            <div class="leftDiv">
+                <a href="/streaming_data"><img src="/static/images/streaming_data/streaming_data.png" style="width:150px;" alt=""/></a>
+            </div>
+            <div class="rightDiv">
+                <br/>
+                <a href="/streaming_data" style="color: white; font-size: 16px;"> StreamingGoo! </a>
+                <br>
+                <h5 style="font-weight: normal;">streamming graph, period detection, regression.</h5>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+</section>
+
+
+</div>
+</div>
+
+
+</section>
+
+<script src="../static/js/bootstrap/jquery.js"></script>
+<script src="../static/js/bootstrap/bootstrap.min.js"></script>
+<script src="../static/js/bootstrap/jquery.parallax.js"></script>
+<script src="../static/js/bootstrap/modernizr.custom.js"></script>
+<script src="../static/js/bootstrap/SmoothScroll.js"></script>
+<script src="../static/js/bootstrap/main.js"></script>
+<script src="../static/js/bootstrap/custom.js"></script>
+
+</body>
+</html>
