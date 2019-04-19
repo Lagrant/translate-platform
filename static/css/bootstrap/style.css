@@ -2,8 +2,8 @@ body, html {
     font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
     text-rendering: optimizeLegibility !important;
     -webkit-font-smoothing: antialiased !important;
-    color: white;
-    font-weight: 300;
+/*    color: white;*/
+/*    font-weight: 300;*/
     width: 100% !important;
     height: 100% !important;
 
