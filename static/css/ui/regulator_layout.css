@@ -36,6 +36,13 @@
     to {top:0; opacity:1}
 }
 
+.new-range {
+    float: left;
+    font-size: 28px;
+    font-weight: bold;
+    color: rgba(0,0,0,0.2);
+}
+
 .close {
 /*    color: #ffffff;*/
     float: right;
@@ -44,7 +51,9 @@
 }
 
 .close:hover,
-.close:focus {
+.close:focus,
+.new-range:hover,
+.new-range:focus {
     color: #000;
     text-decoration: none;
     cursor: pointer;
@@ -106,10 +115,15 @@
     padding-left: 20px;
 /*    display: inline;*/
     overflow: hidden;
+    font-size: 28px;
 }
 
-.from, .step {
-    margin-left: 120px;
+.from {
+    margin-left: 70px;
+}
+
+.step {
+    margin-left: 180px;
 }
 
 .from, .to, .step {

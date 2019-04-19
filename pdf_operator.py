@@ -38,30 +38,37 @@ def split(pdf_path, index_list):
         
         pdf_reader = PdfFileReader(pdf_path)
         page_num = pdf_reader.getNumPages()
-        index_list.append(page_num-1)
-        start = 0
 
         print('spliting pdf ' + pdf_path + ' to ' + str(len(index_list)) + ' parts')
 
+        int_index_list = []
         for index in index_list:
+            int_index_list.append(list(map(int, index)))
+
+        out_files = []
+        for index in int_index_list:
+            """    
             index = int(index)
             if index <= 0 or index >= page_num or index < start:
                 continue
+            """
+            index[0] = index[0] - 1
+            index[1] = index[1] - 1
             pdf_writer = PdfFileWriter()
-            for i in range(start, index+1):
+            for i in range(index[0], index[1]):
                 pdf_writer.addPage(pdf_reader.getPage(i))
             # 获取PDF所在目录和PDF文件名
             pdf_dir = os.path.split(pdf_path)[0]
             pdf_name = os.path.splitext(os.path.split(pdf_path)[1])[0]
             # 保存分割的PDF
-            out_file = os.path.join(pdf_dir, pdf_name + '--' + str(start) + '-' + str(index) + '.pdf')
+            out_file = os.path.join(pdf_dir, pdf_name + '--' + str(index[0]) + '-' + str(index[1]) + '.pdf')
             pdf_writer.write(open(out_file, 'wb'))
+            out_files.append('.' + str(out_file))
 
-            print('save the splited pdf from page ' + str(start) + ' to ' + str(index) + ' to ' + str(out_file))
+            print('save the splited pdf from page ' + str(index[0]) + ' to ' + str(index[1]) + ' to ' + str(out_file))
 
-            start = index + 1;
-        pass
+        return out_files
 
 if __name__ == '__main__':
-    index_list = [2,5]
+    index_list = [[2,5],[6,7]]
     split('./static/uploads/A_two-dimensional_interpolation_for_irregularly-spaced_data_.pdf', index_list)

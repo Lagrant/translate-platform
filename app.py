@@ -8,6 +8,7 @@ from io import StringIO
 import sys
 sys.path.append('/')
 from util import ListConverter
+from pdf_operator import merge, merge_all, split
 import platform
 import random
 import shutil
@@ -364,7 +365,7 @@ def upload_file(filename):
         fname = secure_filename(f.filename)
         path_file_name = path_file + fname
         f.save(path_file_name)
-        book_list[filename] = translation_path_file + fname
+        book_list[fname] = translation_path_file + fname
         
         pdf_reader = PdfFileReader(path_file_name)
         page_num[fname] = pdf_reader.getNumPages()
@@ -386,19 +387,39 @@ def upload_file(filename):
 
 @app.route('/page_number/<filename>', methods=['POST','GET'])
 def get_page_num(filename):
-    return jsonify(page_num[filename])
+    fname = secure_filename(filename)
+    log.info(page_num)
+    return jsonify(page_num[fname])
 
 @app.route('/set_setting_list', methods=['POST','GET'])
 def set_setting_list():
     if request.method == 'POST':
         setting_list.append(json.loads(request.get_data()))
         log.info(setting_list)
-        return Response("Successfully add new task")
+        return Response("Successfully add new task", status=200)
 
 @app.route('/get_setting_list', methods=['POST','GET'])
 def get_setting_list():
     if request.method == 'POST':
         return jsonify(setting_list)
+
+@app.route('/get_setting_item/<string:name>', methods=['POST','GET'])
+def get_setting_item(name):
+    for item in setting_list:
+        if name == item['name']:
+            return jsonify(item)
+
+@app.route('/send_segment_range/<string:name>', methods=['POST','GET'])
+def segment_file(name):
+    if request.method == 'POST':
+        select_range = json.loads(request.get_data())
+        for item in setting_list:
+            if name == item['name']:
+                fname = secure_filename(item['filename'])
+                path_file = './static/uploads/translation_' + fname
+                out_files = split(path_file, select_range)
+                return jsonify(out_files)
+            
 
 @app.route('/translation/<list:ids>', methods=['POST','GET'])
 def toTranslationPage(ids):
@@ -408,10 +429,11 @@ def toTranslationPage(ids):
     log.info('projId = %s', ids)
     log.info('book name = %s', book_list)
     translation_path_file = '../static/uploads/'
-    fname = secure_filename(ids[1])
-    if ids[0] not in book_list.keys():
+    translation_fname = secure_filename(ids[1])
+    fname = secure_filename(ids[0])
+    if fname not in book_list.keys():
         return 'File not found'
-    return render_template('translationpage.html', projId = book_list[ids[0]], translationId = translation_path_file + fname)
+    return render_template('translationpage.html', projId = book_list[fname], translationId = translation_path_file + translation_fname)
 # text_OCR--------------------------------------------------
 
 if __name__ == '__main__':

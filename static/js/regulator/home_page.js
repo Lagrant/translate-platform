@@ -22,15 +22,6 @@ window.onclick = function (event) {
     
 }
 
-function beginSeg() {
-    var btn = document.getElementById("segment-file");
-    btn.style.display = 'block';
-}
-
-function get_foreign_book(){
-    
-}
-
 function uploadComplete(evt){//pdf文件上传成功
     alert(evt.target.responseText);
 }
@@ -42,26 +33,12 @@ function newTaskSettings(ob) {
     var divbtn = $(btn).parent();
     var settingListElements = $(divbtn).siblings();
     
-    var projName = settingListElements[0].children[0];
-    /*if ($(projName).val() === "") {
-        alert("Project name must not be empty");
-        return;
-    }*/
-    settingList["name"] = $(projName).val();
-    
     var foreignBook = settingListElements[1].children[1].children[0];
     /*if ($(foreignBook).val() === "") {
         alert("File must not be empty");
         return;
     }*/
 //    settingList["foreignBook"] = $(foreignBook).val();
-    
-    var group = settingListElements[2].children[0];
-    /*if (group.options[group.selectedIndex].value) === "--none--") {
-        alert("Group must not be empty");
-        return;
-    }*/
-    settingList["group"] = group.options[group.selectedIndex].value;
     
     var ddl = settingListElements[3].children[0];
     /*if ($(ddl).val() === "") {
@@ -70,16 +47,21 @@ function newTaskSettings(ob) {
     }*/
     settingList["ddl"] = $(ddl).val();
     
+    var group = settingListElements[2].children[0];
+    /*if (group.options[group.selectedIndex].value) === "--none--") {
+        alert("Group must not be empty");
+        return;
+    }*/
+    settingList["group"] = group.options[group.selectedIndex].value;
+    
+    var projName = settingListElements[0].children[0];
+    /*if ($(projName).val() === "") {
+        alert("Project name must not be empty");
+        return;
+    }*/
+    settingList["name"] = $(projName).val().toString();
+    
     console.log(settingList);
-    $.ajax({
-        type: "POST",
-        url: "/set_setting_list",
-        data: JSON.stringify(settingList),
-        error: function () {
-            alert("fail to create new task");
-            return;
-        }
-    });
     
     var file_name=$("input[name=foreign-book]").val();
     var fileType, nameOnly;
@@ -88,7 +70,8 @@ function newTaskSettings(ob) {
         fileType = (file_name.substring(file_name.lastIndexOf(".")+1,file_name.length)).toLowerCase();
         nameOnly = file_name.substring(0,file_name.lastIndexOf("."));
         nameOnly = nameOnly.split("\\").slice(-1);
-        nameOnly = nameOnly[0].replace(/(\s*$)/g,"");
+//        nameOnly = nameOnly[0].replace(/(\s*$)/g,"");
+        nameOnly = nameOnly[0];
         if(fileType=='pdf')
         {
             var fd=new FormData();
@@ -104,55 +87,153 @@ function newTaskSettings(ob) {
         
     }
     
-    var viewTranslation = document.getElementById("view-translation");
-    viewTranslation.setAttribute("href", "/translation/" + nameOnly + "+translation_" + nameOnly + "." + fileType);
+    settingList["filename"] = nameOnly + "." + fileType;
+    settingList["href"] = "/translation/" + nameOnly + "." + fileType + "+translation_" + nameOnly + "." + fileType;
+    $.ajax({
+        type: "POST",
+        url: "/set_setting_list",
+        data: JSON.stringify(settingList),
+        error: function () {
+            alert("fail to create new task");
+            return;
+        }
+    });
     
     drawAssign();
+    location.reload();
     
     closeWindow();
 }
 
-//            $.ajax({
-//                type: "POST",
-//                url: url,
-//                data: JSON.stringify(parameters),//还需要加一个draw_id用于表示要画在哪个div上面。
-//                contentType: 'application/json; charset=UTF-8',
-//                //dataType:"html",
-//                success: function (res) {//返回数据根据结果进行相应的处理
-//                    if (res.hasOwnProperty('prompt')) {
-//                        alert(res.prompt);
-//                        draw_counts.push(draw_count);
-//                    } else {
-//                        create_draw_element('draw_bar', draw_count, cluster_way_inf);//首先创建一个div用来画图
-//                        var count = "#draw_" + draw_count.toString();
-//                        $(count).html(res);
-//                        ddd(draw_count);
-//                    }
-//                },
-//                error: function () {
-//                    alert("获取数据失败！");
-//                    draw_counts.push(draw_count);
-//                }
-//            });
+
+
+
+function drawAssignDetails(setting) {
+    var item = $('<td rowspan="1" colspan="2">\n\
+                <div class="cell">' + setting + '</div>\n\
+            </td>');
+    return item;
+}
+
+function drawAssignItems(result) {
+    console.log(result);
+    var iconSettings = $('<td rowspan="1" colspan="1">\n\
+                <div class="cell">\n\
+                    <div name="icon-settings" class="el-table__expand-icon tri-left" onclick="expand(this)"></div>\n\
+                </div>\n\
+            </td>');
+
+    var progress = $('<td rowspan="1" colspan="2">\n\
+                <div class="cell">\n\
+                    100%\n\
+                </div>\n\
+            </td>');
+
+    var items = new Array();
+    /*for (item in result) {
+        items.push(drawAssignDetails(result[item]));
+    }*/
+    items.push(drawAssignDetails(result['name']));
+    items.push(drawAssignDetails(result['group']));
+    items.push(drawAssignDetails(result['ddl']));
+
+    var titles = $('<tr></tr>');
+    titles.append(iconSettings);
+    for (var i = 0; i < items.length; i++) {
+        titles.append(items[i]);
+    }
+    titles.append(progress);
+    var taskBody = $('<tbody></tbody>');
+    taskBody.attr('id', result['name']);
+    taskBody.append(titles);
+
+    $("#task-content").append(taskBody);
+}
+
+function drawAssign() {
+    $.ajax({
+        type: "POST",
+        url: "/get_setting_list",
+        success: function (res) {
+            var results = res;
+            for (i in results) {
+                drawAssignItems(results[i]);
+            }
+        },
+    });
+}
+
+function beginSeg(ob) {
+    var btn = document.getElementById("segment-file");
+    btn.style.display = "block";
+
+    var taskBody = ob.parentNode.parentNode.parentNode.parentNode.parentNode;
+    taskBody.appendChild(btn);
+
+    $.ajax({
+        type: "POST",
+        url: "/get_setting_item/" + taskBody.id,
+        success: function (res) {
+            $.ajax({
+                type: "POST",
+                url: "/page_number/" + res["filename"],
+                success: function (res) {
+                    var formGroups = document.getElementsByClassName("form-group");
+                    for (var i = 0; i < formGroups.length; i++) {
+                        formGroups[i].setAttribute("min", 1);
+                        formGroups[i].setAttribute("max", res);
+                    }
+                },
+                error: function () {
+                    alert("fail to get page number");
+                }
+            });
+        },
+        error: function () {
+            alert("fail to set segmentation range");
+        }
+    });
+
+
+}
 
 var lastRange = undefined;
 function selectRangeMode(ob) {
     if (lastRange === undefined) {
         ob.style.boxShadow = "inset 0 1px 5px #c4c5c7";
         lastRange = ob;
-        return;
+//                                        return;
     } else if (lastRange === ob) {
         return;
     } else {
         lastRange.style.boxShadow = "";
         ob.style.boxShadow = "inset 0 1px 5px #c4c5c7";
         lastRange = ob;
-        return;
+//                                        return;
     }
-    
+    var idString = ob.id;
+    idString = idString.split("-")[0];
+    if (idString == "customized") {
+        document.getElementById("customized").style = "display:block";
+        document.getElementById("fixed").style = "display:none";
+    } else if (idString == "fixed") {
+        document.getElementById("fixed").style = "display:block";
+        document.getElementById("customized").style = "display:none";
+    }
 }
 
 function deleteRange(ob) {
+    var rname = document.getAttribute("name");
+    var ranges = document.getElementsByName(rname);
+    if (ranges.length === 1) {
+        return;
+    }
     var bd = ob.parentNode.parentNode;
     bd.parentNode.removeChild(bd);
+}
+
+function newRange(ob) {
+    var cr = ob.parentNode.parentNode;
+    var cust = cr.parentNode;
+    cust.appendChild(cr.cloneNode(true));
 }
