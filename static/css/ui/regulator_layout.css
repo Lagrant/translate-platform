@@ -133,3 +133,9 @@
 .input-area {
     display: inline;
 }
+
+.mem-assign {
+    height: 40px;
+    font-size: 30px;
+    margin-left: 80px;
+}

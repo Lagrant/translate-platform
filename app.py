@@ -40,6 +40,9 @@ app.url_map.converters['list'] = ListConverter
 book_list = {}
 page_num = {}
 setting_list = []
+range_list = {}
+out_files_list = {}
+n_t_s = {}
 
 @app.route('/')
 @app.route('/index')
@@ -412,14 +415,39 @@ def get_setting_item(name):
 @app.route('/send_segment_range/<string:name>', methods=['POST','GET'])
 def segment_file(name):
     if request.method == 'POST':
+        
+        global range_list
+        global out_files_list
+        
         select_range = json.loads(request.get_data())
+        range_list[name] = select_range
+        
         for item in setting_list:
             if name == item['name']:
                 fname = secure_filename(item['filename'])
                 path_file = './static/uploads/translation_' + fname
                 out_files = split(path_file, select_range)
-                return jsonify(out_files)
-            
+                for i in range(len(select_range)):
+                    temp = list(map(str, select_range[i]))
+                    out_files_list[','.join(temp)] = out_files[i]
+                return jsonify(out_files_list)
+
+@app.route('/get_range_list/<string:name>', methods=['POST','GET'])
+def get_range_list(name):
+    if request.method == 'POST':
+        global range_list
+        
+        return jsonify(range_list[name])
+
+@app.route('/translator_setion/<string:name>', methods=['POST','GET'])
+def translator_setion(name):
+    if request.method == 'POST':
+        global n_t_s
+
+        t_s = json.loads(request.get_data())
+        n_t_s[name] = t_s
+        log.info('n_t_s = %s', n_t_s)
+        return Response('Successfully adds translators and sections', status=200)
 
 @app.route('/translation/<list:ids>', methods=['POST','GET'])
 def toTranslationPage(ids):
@@ -434,6 +462,10 @@ def toTranslationPage(ids):
     if fname not in book_list.keys():
         return 'File not found'
     return render_template('translationpage.html', projId = book_list[fname], translationId = translation_path_file + translation_fname)
+
+@app.route('/translator', methods=['POST','GET'])
+def toTranslatorPage():
+    return render_template('translator_homepage.html')
 # text_OCR--------------------------------------------------
 
 if __name__ == '__main__':

@@ -55,10 +55,10 @@ function newTaskSettings(ob) {
     settingList["group"] = group.options[group.selectedIndex].value;
     
     var projName = settingListElements[0].children[0];
-    /*if ($(projName).val() === "") {
+    if ($(projName).val() === "") {
         alert("Project name must not be empty");
         return;
-    }*/
+    }
     settingList["name"] = $(projName).val().toString();
     
     console.log(settingList);
@@ -223,7 +223,7 @@ function selectRangeMode(ob) {
 }
 
 function deleteRange(ob) {
-    var rname = document.getAttribute("name");
+    var rname = ob.parentNode.getAttribute("name");
     var ranges = document.getElementsByName(rname);
     if (ranges.length === 1) {
         return;

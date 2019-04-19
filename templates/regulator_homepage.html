@@ -324,7 +324,7 @@
                                                 </div>
                                             </div>
                                             <div class="el-card__body">
-                                                <div style="cursor:pointer" onclick="distrAssigns()">
+                                                <div style="cursor:pointer" onclick="distrAssigns(this)">
                                                     Translators
                                                 </div>
                                             </div>
@@ -413,7 +413,56 @@
                                     taskContent.parentNode.style.display = "none";
                                 }
                                 
+                                function distrAssigns(ob) {
+                                    // set group member
+                                    // set assignments
+                                    $("#distribute-assignments")[0].style.display = "block";
+                                    var taskBody = ob.parentNode.parentNode.parentNode.parentNode.parentNode;
+                                    taskBody.appendChild($("#distribute-assignments")[0]);
+                                    
+                                    var rangeList;
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/get_range_list/" + taskBody.id,
+                                        success: function (res) {
+                                            rangeList = res;
+                                            var assignments = document.getElementsByClassName("assignments");
+                                            for (var i = 0; i < assignments.length; i++) {
+                                                for (var j = 0; j < rangeList.length; j++) {
+                                                    var opt = document.createElement("option");
+                                                    opt.setAttribute("value", rangeList[j].toString());
+                                                    opt.innerHTML = rangeList[j].toString();
+                                                    assignments[i].appendChild(opt);
+                                                }
+                                            }
+                                        },
+                                        error: function () {
+                                            alert("fail to get range list");
+                                        }
+                                    });
+                                    
+                                }
                                 
+                                function postAssignMem(ob) {
+                                    var da = ob.parentNode.parentNode.parentNode;
+                                    var taskBody = da.parentNode;
+                                    
+                                    var memAssigns = $(da).find("select");
+                                    var translator = memAssigns[0].options[memAssigns[0].selectedIndex].value.toString();
+                                    var section = memAssigns[1].options[memAssigns[1].selectedIndex].value.toString();
+                                    var t_s = {}
+                                    t_s[translator] = section;
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/translator_setion/" + taskBody.id,
+                                        data: JSON.stringify(t_s),
+                                        error: function () {
+                                            alert("fail to post translators and sections");
+                                        }
+                                    });
+                                    
+                                    da.style.display = "none";
+                                }
                             </script>
                             <div id="segment-file" class="task">
                                 <div class="task-content">
@@ -469,17 +518,19 @@
                                     
                                     <div id="distribution" class="task-body">
                                         <div name="group-member">
+<!--
                                             <div class="input-area">
-                                                <span class="new-member" onclick="newRange(this)" style="padding-top:5px;">+</span>
+                                                <span class="new-range" onclick="newRange(this)" style="padding-top:5px;">+</span>
                                             </div>
+-->
                                             <div class="input-area">
-                                                <select id="member">
+                                                <select class="member mem-assign">
                                                     <option value="--none--">--none--</option>
-                                                    <option value="Alice">Alice</option>
+                                                    <option value="Allen">Allen</option>
                                                 </select>
                                             </div>
                                             <div class="input-area">
-                                                <select id="assignments">
+                                                <select class="assignments mem-assign">
                                                     <option value="--none--">--none--</option>
                                                 </select>
                                             </div>
@@ -491,7 +542,7 @@
                                     </div>
                                     
                                     <div class="task-settings">
-                                        <button id="post-segments" class="selection" onclick="postSegmentRanges(this)">Confirm</button>
+                                        <button id="post-members" class="selection" onclick="postAssignMem(this)">Confirm</button>
                                     </div>
                                 </div>
                             </div>
