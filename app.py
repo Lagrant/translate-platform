@@ -6,6 +6,8 @@ import csv
 import os
 from io import StringIO
 import sys
+sys.path.append('/')
+from util import ListConverter
 import platform
 import random
 import shutil
@@ -15,51 +17,41 @@ from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pymysql
-from flask import Flask, request, json, render_template, session, jsonify, url_for, current_app, g, redirect
+from flask import Flask, request, json, render_template, session, jsonify, url_for, current_app, g, redirect, Response
 from xlrd import open_workbook
 from werkzeug.utils import secure_filename
-
-'''
-from aip import AipOcr  # 引入百度api
-import jieba
-
-from docx import Document
-
-# 用于执行病毒查杀
-import pyclamd
-# 连接百度服务器的密钥
-APP_ID = '14658891'
-API_KEY = 'zWn97gcDqF9MiFIDOeKVWl04'
-SECRET_KEY = 'EEGvCjpzTtWRO3GIxqz94NLz99YSBIT9'
-# 连接百度服务器
-# 输入三个密钥，返回服务器对象
-client = AipOcr(APP_ID, API_KEY, SECRET_KEY)
-'''
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
 app = Flask(__name__)
+log = app.logger
 # app.run('127.0.0.1', debug=True, port=5000, ssl_context=('D:\OpenSSL-Win64\bin\server.crt', 'D:\OpenSSL-Win64\bin\server.key'))
 # 用于加密，作为盐混在原始的字符串中，然后用加密算法进行加密
 app.config['SECRET_KEY'] = os.urandom(24)
 # 设定session的保存时间，当session.permanent=True的时候
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.url_map.converters['list'] = ListConverter
 
+#app.register_blueprint(console)
 #ksw now
+
+#book_list should have been unique to each account, but now, simply set
+#a globle variable and remains modifying in the future
+book_list = {}
+page_num = {}
+setting_list = []
 
 @app.route('/')
 @app.route('/index')
 def index():
     g.count = 0
-    session['cluster_method'] = 'KMeans'
-    session['embedding_method'] = 'Principal_Component_Analysis'
-    session['visualization_method'] = 'Radviz'
-    session['cluster_parameters'] = {}
+    
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
         print(user1)
-        return render_template('datagoo_homepage.html', user=user1)
+        return render_template('regulator_homepage.html', user=user1)
     else:
-        return render_template('datagoo_homepage.html')
+        return render_template('regulator_homepage.html')
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -356,38 +348,70 @@ def about_us():
         return render_template('about_us.html')
 
 
-@app.route('/gallery/', methods=['POST', 'GET'])
-def gallery():
+@app.route('/upload_file/<filename>', methods=['POST','GET'])
+def upload_file(filename):
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No File')
+            return redirect(request.url)
+        
+        global book_list
+        global page_num
+        
+        path_file = './static/uploads/'
+        translation_path_file = '../static/uploads/'
+        f = request.files['file']
+        fname = secure_filename(f.filename)
+        path_file_name = path_file + fname
+        f.save(path_file_name)
+        book_list[filename] = translation_path_file + fname
+        
+        pdf_reader = PdfFileReader(path_file_name)
+        page_num[fname] = pdf_reader.getNumPages()
+        
+        return Response('Uploaded file successfully', status=200)
+    '''
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
         if user1 is None:
             return "false"
-        return render_template('gallery.html', user=user1)
+        if request.method == 'POST':
+            return
+
+            
     else:
-        return render_template('gallery.html')
+        return render_template('user/login.html')
+    '''
 
+@app.route('/page_number/<filename>', methods=['POST','GET'])
+def get_page_num(filename):
+    return jsonify(page_num[filename])
 
-@app.route('/master/', methods=['POST', 'GET'])
-def master():
-    return render_template('geogoo/master.html')
+@app.route('/set_setting_list', methods=['POST','GET'])
+def set_setting_list():
+    if request.method == 'POST':
+        setting_list.append(json.loads(request.get_data()))
+        log.info(setting_list)
+        return Response("Successfully add new task")
 
+@app.route('/get_setting_list', methods=['POST','GET'])
+def get_setting_list():
+    if request.method == 'POST':
+        return jsonify(setting_list)
 
-@app.route('/masterpoint/', methods=['POST', 'GET'])
-def masterpoint():
-    return render_template('geogoo/masterpoint.html')
-
-
-@app.route('/BusRoute/', methods=['POST', 'GET'])
-def BusRoute():
-	return render_template('geogoo/BusRoute.html')
-
-
-@app.route('/PM25/', methods=['POST', 'GET'])
-def PM25():
-	return render_template('geogoo/PM25.html')
-
-
+@app.route('/translation/<list:ids>', methods=['POST','GET'])
+def toTranslationPage(ids):
+    """
+    call translation api
+    """
+    log.info('projId = %s', ids)
+    log.info('book name = %s', book_list)
+    translation_path_file = '../static/uploads/'
+    fname = secure_filename(ids[1])
+    if ids[0] not in book_list.keys():
+        return 'File not found'
+    return render_template('translationpage.html', projId = book_list[ids[0]], translationId = translation_path_file + fname)
 # text_OCR--------------------------------------------------
 
 if __name__ == '__main__':
