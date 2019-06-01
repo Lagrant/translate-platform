@@ -1,0 +1,141 @@
+.task {
+    display: none; /* 默认隐藏 */
+    position: fixed; 
+    z-index: 1; 
+    padding-top: 100px; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4);
+}
+
+.task-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 600px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+@-webkit-keyframes animatetop {
+    from {top:-300px; opacity:0} 
+    to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+.new-range {
+    float: left;
+    font-size: 28px;
+    font-weight: bold;
+    color: rgba(0,0,0,0.2);
+}
+
+.close {
+/*    color: #ffffff;*/
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus,
+.new-range:hover,
+.new-range:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.task-header {
+    padding: 2px 16px;
+    background-color: #CCCCCC;
+    color: white;
+}
+
+.task-body {padding: 2px 16px;}
+
+.task-settings {
+    padding-left: 30px;
+    height: 60px;
+    font-size: 30px;
+}
+
+.upload-button {
+    float: right;
+    margin-right: 30px;
+}
+
+.selection {
+    float: right;
+    margin-right: 30px;
+    position: absolute;
+    right: 30px;
+}
+
+.left-option, .right-option {
+    height: 30px;
+    width: 300px;
+    padding-left: 10px;
+    display: inline;
+    font-size: 30px;
+    border: 1px solid #b4b4b4;
+    cursor: pointer;
+/*    box-shadow: inset 0 1px 5px #c4c5c7;*/
+}
+
+.left-option {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    margin-left: 75px;
+}
+
+.right-option {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+/*    border-right: 1px solid #b4b4b4;*/
+}
+
+.form-group {
+    height: 30px;
+    width: 150px;
+/*    margin-left: 120px;*/
+    padding-left: 20px;
+/*    display: inline;*/
+    overflow: hidden;
+    font-size: 28px;
+}
+
+.from {
+    margin-left: 70px;
+}
+
+.step {
+    margin-left: 180px;
+}
+
+.from, .to, .step {
+    font-size: 30px;
+}
+
+.input-area {
+    display: inline;
+}
+
+.mem-assign {
+    height: 40px;
+    font-size: 30px;
+    margin-left: 80px;
+}

@@ -1,0 +1,244 @@
+
+<html lang="en">
+
+<head>
+    <title>Platform</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/javascript" src="/static/js/bootstrap/jquery-1.9.0.min.js"></script>
+    <link href="/static/css/user/login.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/css/bootstrap/mdui.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="//cdnjs.loli.net/ajax/libs/mdui/0.4.1/css/mdui.min.css">
+</head>
+<body>
+
+
+<h1 style="margin-top: 50px">Translation Collaboration Platform</h1>
+<!--登录注册begin-->
+<div class="login" id="logsign" style="margin-top:50px;">
+    <div class="header">
+        <div class="switch" id="switch"><a class="switch_btn_focus" id="switch_qlogin" href="javascript:void(0);"
+                                           tabindex="7">Log in</a>
+            <a class="switch_btn" id="switch_login" href="javascript:void(0);" tabindex="8">Sign up</a>
+            <div class="switch_bottom" id="switch_bottom"></div>
+        </div>
+    </div>
+    <!--登录-->
+    <div class="web_qr_login" id="web_qr_login" style="display: block;">
+        <div class="web_login" id="web_login">
+            <div class="login-box">
+                <div class="login_form">
+                    <form id="login_form" class="loginForm">
+                        <ul class="reg_form" id="reg-ul">
+                            <li>
+                                <div id="userCue1" class="userCue">
+                                    {{ tips }}
+                                </div>
+                            </li>
+                            <div style="height: 10px;font-size: 0.5em;"><a id="forgot">forgot password?</a></div>
+                            <li>
+                                <div class="uinArea" id="uinArea">
+                                    <label class="input-tips" for="u">Email</label>
+                                    <div class="inputOuter" id="uArea">
+                                        <input type="text" id="e" name="e" class="inputstyle" minlength="5"
+                                               maxlength="30"/>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="pwdArea" id="pwdArea">
+                                    <label class="input-tips" for="p">Password</label>
+                                    <div class="inputOuter" id="pArea">
+                                        <input type="password" id="p" name="p" minlength="6" maxlength="16"
+                                               class="inputstyle"/>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div style="padding-left:50px;margin-top:20px;"><input type="button" id='log'
+                                                                                       value="Login"
+                                                                                       style="width:150px;"
+                                                                                       class="button_blue"/>
+                                    <!--这里把form自己的控件改成使用ajax提交，就可以避免重复提交的问题-->
+                                </div>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--登录end-->
+
+    <!--注册-->
+    <div class="qlogin" id="qlogin" style="display: none; ">
+        <div class="web_login">
+            <form name="form2" id="regUser" accept-charset="utf-8" method="post">
+                <ul class="reg_form" id="reg-ul">
+                    <li>
+                        <div id="userCue" class="userCue"></div>
+                    </li>
+                    <li>
+                        <label for="email" class="input-tips2">Email</label>
+                        <div class="inputOuter2">
+                            <input type="text" id="email" name="email" class="inputstyle2" maxlength="30"/>
+                        </div>
+                    </li>
+
+                    <li>
+                        <label for="user" class="input-tips2">Username</label>
+                        <div class="inputOuter2">
+                            <input type="text" id="user" name="user" minlength="4" maxlength="12" class="inputstyle2"/>
+                        </div>
+                    </li>
+
+                    <li>
+                        <label for="passwd" class="input-tips2">Password</label>
+                        <div class="inputOuter2">
+                            <input type="password" id="passwd" name="passwd" minlength="6" maxlength="16"
+                                   class="inputstyle2"/>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div>
+                            <input type="button" id="confirm" name="confirm" class="mdui-btn-raised mdui-btn"
+                                   value="get code" style="margin-left: 20px;">
+                            <input type="text" name="verify" id="verify" class="inputstyle2"
+                                   style="width: 137px;margin-left: 20px;"
+                                   maxlength="4" minlength="4" placeholder="code"/>
+                        </div>
+                    </li>
+
+                    <li>
+                        <label class="input-tips2" for="t">Type</label>
+                        <div class="inputOuter">
+                            <select class="mdui-select" id="t" name="t">
+                                <option value="Translator">Translator</option>
+                                <option value="Manager">Manager</option>
+<!--                                <option value="Intermediate VIP">Gold</option>-->
+<!--                                <option value="Senior VIP">Platinum</option>-->
+                            </select>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div id="tips" style="text-align:justify;text-justify:inter-ideograph;">
+                            I agree to <a href="#" class="zcxy" target="_blank">terms of service</a>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div class="inputArea">
+                            <input type="button" id="reg" style="margin-top:10px;margin-left:85px;"
+                                   class="button_blue"
+                                   value="Create an account"/>
+                        </div>
+                    </li>
+
+                </ul>
+            </form>
+        </div>
+    </div>
+    <!--注册end-->
+</div>
+<!--登录注册end-->
+
+
+<!--找回密码begin-->
+<div class="login" id="forgoten" style="margin-top:50px; display: none">
+    <div class="header">
+        <div class="switch" id="switch2">
+            <div class="switch_btn_focus" id="switch_code" href="javascript:void(0);"
+                 tabindex="7">Send code
+            </div>
+            <div class="switch_btn" id="switch_pass" href="javascript:void(0);" tabindex="8" style="margin-left: 30px;">
+                New password
+            </div>
+            <div class="switch_bottom" id="switch_bottom2"
+                 style="position: absolute; width: 64px; left: 0; height: 2px;"></div>
+        </div>
+    </div>
+    <!--发送验证码-->
+    <div class="web_login" id="web_code">
+        <div class="login-box">
+            <div class="login_form">
+                <form class="loginForm">
+                    <ul class="reg_form">
+                        <li>
+                            <div class="userCue" id="userCue_code"></div>
+                        </li>
+                        <li>
+                            <div class="inputArea">
+                                <label class="input-tips" for="code_email" id="email_code">Email</label>
+                                <div class="inputOuter2">
+                                    <input type="text" id="code_email" name="e" class="inputstyle" minlength="5"
+                                           maxlength="30"/>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div class="inputArea" style="margin-top: 10px">
+                                <input type="button" name="confirm" class="mdui-btn-raised mdui-btn"
+                                       value="get code" id="get_code">
+                                <input type="text" name="verify" class="inputstyle2"
+                                       style="width: 137px;margin-left: 20px;"
+                                       maxlength="4" minlength="4" placeholder="code" id="write_code"/>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div class="pwdArea" style="padding-left:50px;margin-top:20px;">
+                                <input type="button" value="Submit" style="width:150px;" class="button_blue"
+                                       id="passwd_code"/>
+                            </div>
+                        </li>
+
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!--发送验证码end-->
+
+    <!--设置新密码-->
+    <div class="web_login" id="web_pass" style="display: none">
+        <div class="web_login">
+            <form name="form2" accept-charset="utf-8" method="post">
+                <ul class="reg_form" id="reg-ul">
+                    <li>
+                        <div class="userCue" id="userCue_pass"></div>
+                    </li>
+                    <li>
+                        <label for="passwdnew" class="input-tips2">New Password</label>
+                        <div class="inputOuter2">
+                            <input type="password" id="passwdnew" name="passwdnew" minlength="6" maxlength="16"
+                                   class="inputstyle2" placeholder="Between 6-16"/>
+                        </div>
+                    </li>
+                    <li>
+                        <label for="passwdnew2" class="input-tips2">Repeat</label>
+                        <div class="inputOuter2">
+                            <input type="password" id="passwdnew2" name="passwdnew2" minlength="6" maxlength="16"
+                                   class="inputstyle2" placeholder="Please enter your password again"/>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="pwdArea" style="padding-left:50px;margin-top:20px;">
+                            <input type="button" value="Submit" style="width:150px;" class="button_blue"
+                                   id="passwd_submit"/>
+                        </div>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+    <!--设置新密码end-->
+</div>
+<!--找回密码end-->
+<div class="jianyi">*推荐使用ie8或以上版本ie浏览器或Chrome内核浏览器访问本站</div>
+<script type="text/javascript" src="/static/js/user/login.js"></script>
+</body>
+</html>

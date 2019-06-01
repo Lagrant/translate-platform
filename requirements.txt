@@ -1,0 +1,7 @@
+numpy
+pymysql
+PyPDF2
+flask-sqlalchemy
+Flask
+xlrd
+SQLAlchemy

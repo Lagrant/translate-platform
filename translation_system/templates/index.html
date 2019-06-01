@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>kindeditor集成jmeditor公式web富文本编辑器</title>
+<link rel="stylesheet" href="./themes/default/default.css" />
+<link rel="stylesheet" href="./plugins/code/prettify.css" />
+<script type="text/javascript" src="./plugins/jme/dialogs/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="./kindeditor-all.js"></script>
+<script type="text/javascript" src="./lang/zh-CN.js"></script>
+<script type="text/javascript" src="./plugins/code/prettify.js"></script>
+ 
+<script type="text/javascript">
+	KindEditor.ready(function(K) {
+		var editor1 = K.create('textarea[name="paperTitle"]', {
+			cssPath : './plugins/code/prettify.css',
+			uploadJson : './jsp/upload_json.jsp',
+			fileManagerJson : './jsp/file_manager_json.jsp',
+			allowFileManager : true,
+			autoHeightMode : true,
+			afterCreate : function() {
+				var self = this;
+				K.ctrl(document, 13, function() {
+					self.sync();
+					document.forms['example'].submit();
+				});
+				K.ctrl(self.edit.doc, 13, function() {
+					self.sync();
+					document.forms['example'].submit();
+				});
+			}
+		});
+		prettyPrint();
+	});
+</script>
+</head>
+<body>
+    <div class="control-group" >
+        <textarea id="paperTitle" name="paperTitle" cols="100" rows="8"></textarea>
+    </div>
+</body>
+</html>
+

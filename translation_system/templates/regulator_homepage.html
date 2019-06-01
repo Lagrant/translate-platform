@@ -1,0 +1,608 @@
+
+<html lang="en">
+<head>
+    <title>Collaboration</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="../static/css/bootstrap/bootstrap.css">
+    <script src="../static/js/bootstrap/jquery.js"></script>
+
+    <!-- MAIN CSS -->
+<!--    <link rel="stylesheet" href="../static/css/bootstrap/tooplate-style.css">-->
+    <link rel="stylesheet" href="../static/css/ui/Dashboard.css">
+    <link rel="stylesheet" href="../static/css/ui/regulator_layout.css">
+    <script src="../static/js/regulator/home_page.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            //当点击"一键上传"按钮的时候,触发表单中的浏览文件的操作
+            $("#upload").click(function() {
+                $("#foreign-book").click();
+            })
+            //当选择好上传文件后,执行提交表单的操作
+            /*$("#foreign-book").change(function() {
+                $("#upload-form").submit();
+            })*/
+        })
+    </script>
+    
+</head>
+<body>
+    
+    <noscript><strong>YOU NEED TO OPEN JAVASCRIPT TO USE THIS PLATFORM</strong></noscript>
+
+    <!-- MENU -->
+    <div class="navbar custom-navbar navbar-fixed-top" role="navigation">
+        <div class="container">
+
+            <!-- NAVBAR HEADER -->
+            <div class="navbar-header">
+                <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon icon-bar" style="background:black"></span>
+                    <span class="icon icon-bar" style="background:black"></span>
+                    <span class="icon icon-bar" style="background:black"></span>
+                </button>
+                <!-- lOGO -->
+    <!--            <a href="#" class="navbar-brand">DaGoo!</a>-->
+                <p class="navbar-brand">COLLABORATION</p>
+            </div>
+
+            <!-- MENU LINKS -->
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#" class="smoothScroll">HOME</a>
+                    <li><a href="#" class="smoothScroll">MY BOOKS</a></li>
+                    <li><a href="#" class="smoothScroll">MY GROUPS</a></li>
+                    <li><a href="#" class="smoothScroll">SETTINGS</a></li>
+    <!--
+                    <li><a href="/about_us" class="smoothScroll">About us</a></li>
+                    <li><a href="/contact_us" class="smoothScroll">Contact us</a></li>
+    -->
+                    <li>
+                        <div style="width: 2px; height: 20px; background-color: #090909; margin: 20px"></div>
+                    </li>
+                    {% if user %}
+                        <li class="user_img"><a class="page-scroll" href="/user/">
+                            <div class="to3" style="margin-top: -10px;">
+                                <div class="to2">
+                                    <div class="to1">
+                                        <img class="to" src="/static/user/{{ user.email }}/img/user_img.jpg">
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        </li>
+                        <li><a href="/login/" class="page-scroll">Quit</a></li>
+                    {% else %}
+                        <li>
+                            <a href="/login/" class="">Log in/Sign up</a>
+                        </li>
+                    {% endif %}
+                    {% if user %}
+                        {% if user.permission==100 %}
+                            <li>
+                                <a href="/admin/?manager={{ user.username }}" class="" style="border-bottom-color: transparent;">manage</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                {% if user %}
+                    <script>
+
+                        var permi = '' +{{ user.permission }};
+                        switch (permi) {
+                            case "1":
+                                $('.to3').css('background-color', '#aac4bc');
+                                break;
+                            case "2":
+                                $('.to3').css('background-color', '#ae853b');
+                                break;
+                            case "3":
+                                $('.to3').css('background-color', '#dfdc5d');
+                                break;
+                            case "100":
+                                $('.to3').css('background-color', '#ede4b8');
+                                break;
+                            default:
+                                $('.to3').css('background-color', 'white');
+                        }
+                    </script>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- HOME -->
+    <section id="home" class="parallax-section">
+        <div class="container">
+            <div class="el-card box el-card-shadow">
+                <div class="el-card-head">
+                    <div class="clearfix">
+                        <strong>My Assignments</strong>
+                        <button id="refresh" type="button" class="el-button el-button-text" style="padding: 3px 1rem" onclick=location.reload()>Refresh</button>
+<!--                        <button type="button" class="el-button el-button-text" style="padding: 3px 0px">Skip</button>-->
+                        <button id="newProj" type="button" class="el-button el-button-text" style="padding: 3px 1rem" onclick="newProject()">New</button>
+                    </div>
+                </div>
+                
+                <div id="newTask" class="task">
+                    <div class="task-content">
+                        <div class="task-header">
+                            <span class="close" onclick="closeWindow()">&times;</span>
+                            <h3>New Assignment</h3>
+                        </div>
+                        <div id="taskBody" class="task-body">
+                            <div class="task-settings">Name:
+                                <input type="text" name="proj-name" class="selection" />
+                            </div>
+                            <div class="task-settings">Book: 
+                                <input type="button" id="upload" value="upload" class="selection">
+                                <form id="upload-form" method="post" enctype="multipart/form-data" class="selection" style="bottom:105px;" >
+                                    <input type="file" name="foreign-book" id="foreign-book" style="display:none" >
+                                </form>
+                            </div>
+                            <div class="task-settings">Group: 
+                                <select class="selection">
+                                    <option value="--none--">--none--</option>
+                                    <option value="csgroup">csgroup</option>
+                                </select>
+                            </div>
+                            <div class="task-settings">Deadline:
+                                <input type="date" id="ddl" class="selection" name="ddl">
+                            </div>
+                            <div class="task-settings">
+                                <button id="post-settings" class="selection" onclick="newTaskSettings(this)">Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="el-card-body">
+                    <div class="el-table">
+                        <div class="el-table-head-wrapper">
+                            <table cellspacing="0" cellpadding="0" border="0" class="el-table-head">
+                                <tr>
+                                    <th colspan="1" rowspan="1" >
+                                        <div class="cell">Details</div>
+                                    </th>
+                                    <th colspan="2" rowspan="1">
+                                        <div class="cell">Name</div>
+                                    </th>
+                                    <th colspan="2" rowspan="1">
+                                        <div class="cell">Group</div>
+                                    </th>
+                                    <th colspan="2" rowspan="1">
+                                        <div class="cell">Deadline</div>
+                                    </th>
+                                    <th colspan="2" rowspan="1">
+                                        <div class="cell">Progress</div>
+                                    </th>
+                                </tr>
+                            </table>
+                        </div>
+                        <script>
+                            /*function drawAssignDetails(setting) {
+                                var item = $('<td rowspan="1" colspan="2">\n\
+                                            <div class="cell">' + setting + '</div>\n\
+                                        </td>');
+                                return item;
+                            }
+                            
+                            function drawAssignItems(result) {
+                                console.log(result);
+                                var iconSettings = $('<td rowspan="1" colspan="1">\n\
+                                            <div class="cell">\n\
+                                                <div name="icon-settings" class="el-table__expand-icon tri-left" onclick="expand(this)"></div>\n\
+                                            </div>\n\
+                                        </td>');
+                                
+                                var progress = $('<td rowspan="1" colspan="2">\n\
+                                            <div class="cell">\n\
+                                                100%\n\
+                                            </div>\n\
+                                        </td>');
+                                
+                                var items = new Array();
+                                
+                                items.push(drawAssignDetails(result['name']));
+                                items.push(drawAssignDetails(result['group']));
+                                items.push(drawAssignDetails(result['ddl']));
+                                
+                                var titles = $('<tr></tr>');
+                                titles.append(iconSettings);
+                                for (var i = 0; i < items.length; i++) {
+                                    titles.append(items[i]);
+                                }
+                                titles.append(progress);
+                                var taskBody = $('<tbody></tbody>');
+                                taskBody.attr('id', result['name']);
+                                taskBody.append(titles);
+                                
+                                $("#task-content").append(taskBody);
+                            }
+                            
+                            function drawAssign() {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/get_setting_list",
+                                    success: function (res) {
+                                        var results = res;
+                                        for (i in results) {
+                                            drawAssignItems(results[i]);
+                                        }
+                                    },
+                                });
+                            }*/
+                            $(document).ready(function () {
+            
+                                drawAssign();
+
+                            });
+                        </script>
+                        <div class="el-table__body-wrapper is-scrolling-none">
+                            <table id="task-content" cellspacing="0" cellpadding="0" border="0" class="el-table__body">
+                               <!-- <tbody id="foo">
+                                    <tr>
+                                        <td rowspan="1" colspan="1">
+                                            <div class="cell">
+                                                <div id="icon-settings" class="el-table__expand-icon tri-left" onclick="expand(this)"></div>
+                                            </div>
+                                        </td>
+                                        <td rowspan="1" colspan="2">
+                                            <div class="cell">
+                                                foo
+                                            </div>
+                                        </td>
+                                        <td rowspan="1" colspan="2">
+                                            <div class="cell">
+                                                --none--
+                                            </div>
+                                        </td>
+                                        <td rowspan="1" colspan="2">
+                                            <div class="cell">
+                                                2019/04/01
+                                            </div>
+                                        </td>
+                                        <td rowspan="1" colspan="2">
+                                            <div class="cell">
+                                                100%
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                </tbody>-->
+                                <tr id="project-details" style="display:none">
+                                    <td colspan="4" class="el-table__expanded-cell">
+                                        <div class="el-card is-always-shadow">
+                                            <div class="el-card__header">
+                                                <div class="clearfix">
+                                                    <strong>Term Translation</strong>
+                                                </div>
+                                            </div>
+                                            <div class="el-card__body">
+                                                <div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="el-card is-always-shadow">
+                                            <div class="el-card__header">
+                                                <div class="clearfix">
+                                                    <strong>File Translation</strong>
+                                                </div>
+                                            </div>
+                                            <div class="el-card__body">
+                                                <div style="cursor:pointer">
+                                                    <a id="view-translation">View</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="el-card is-always-shadow">
+                                            <div class="el-card__header">
+                                                <div class="clearfix">
+                                                    <strong>File Segmentation</strong>
+                                                </div>
+                                            </div>
+                                            <div class="el-card__body">
+                                                <div style="cursor:pointer" onclick="beginSeg(this)">
+                                                    Pages
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="el-card is-always-shadow">
+                                            <div class="el-card__header">
+                                                <div class="clearfix">
+                                                    <strong>Assignment Distribution</strong>
+                                                </div>
+                                            </div>
+                                            <div class="el-card__body">
+                                                <div style="cursor:pointer" onclick="distrAssigns(this)">
+                                                    Translators
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="el-card is-always-shadow">
+                                            <div class="el-card__header">
+                                                <div class="clearfix">
+                                                    <strong>Cross Checking</strong>
+                                                </div>
+                                            </div>
+                                            <div class="el-card__body">
+                                                <div>
+                                                    Translators
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <script>
+                                function postSegmentRanges(ob) {
+                                    function swap(a, b) {
+                                        if (a > b) {
+                                            return new Array(b, a);
+                                        } else return new Array(a, b);
+                                    }
+                                    
+                                    function customizedRange() {
+                                        var selectedRange = new Array();
+                                        var crs = document.getElementsByName("custmoized-range");
+                                        for (var i = 0; i < crs.length; i++) {
+                                            var selectedValues = $(crs[i]).find("input");
+                                            var leftValue = parseInt(selectedValues[0].value), rightValue = parseInt(selectedValues[1].value);
+                                            var leftMax = parseInt(selectedValues[0].max), rightMax = parseInt(selectedValues[1].max)
+                                            if (leftValue < 0 || leftValue > leftMax || rightValue <0 || rightValue > rightMax) {
+                                                alert("Invalid page range");
+                                                return;
+                                            }
+                                            selectedRange.push(swap(leftValue, rightValue));
+                                        }
+                                        return selectedRange;
+                                    }
+                                    
+                                    function fixedRange(fr) {
+                                        var selectedRange = new Array();
+                                        var selectedValues = $(fr).find("input");
+                                        var maxRange = parseInt(selectedValues[0].max);
+                                        var stepLength = Math.ceil(selectedValues[0].value);
+                                        if (stepLength > maxRange) {
+                                            alert("Invalid page range");
+                                            return;
+                                        }
+                                        var step = parseInt(maxRange / stepLength);
+                                        for (var i = 0; i < stepLength - 1; i++) {
+                                            selectedRange.push([step * i, step * (i + 1)]);
+                                        }
+                                        selectedRange.push([step * (stepLength - 1), maxRange]);
+                                        return selectedRange;
+                                    }
+                                    
+                                    var taskContent = ob.parentNode.parentNode;
+                                    var taskBody = taskContent.parentNode.parentNode;
+                                    
+                                    var selectedRange = new Array();
+                                    if ($("#customized")[0].style.display == "block") {
+                                        selectedRange = customizedRange();
+                                    } else if ($("#fixed")[0].style.display == "block") {
+                                        selectedRange = fixedRange($("#fixed")[0]);
+                                    }
+                                    
+//                                    console.log(selectedRange);
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/send_segment_range/" + taskBody.id,
+                                        data: JSON.stringify(selectedRange),
+                                        
+                                        error: function () {
+                                            alert("fail to segment file");
+                                            taskContent.parentNode.style.display = "none";
+                                        }
+                                    });
+                                    
+                                    taskContent.parentNode.style.display = "none";
+                                }
+                                
+                                function distrAssigns(ob) {
+                                    // set group member
+                                    // set assignments
+                                    $("#distribute-assignments")[0].style.display = "block";
+                                    var taskBody = ob.parentNode.parentNode.parentNode.parentNode.parentNode;
+                                    taskBody.appendChild($("#distribute-assignments")[0]);
+                                    
+                                    var rangeList;
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/get_range_list/" + taskBody.id,
+                                        success: function (res) {
+                                            rangeList = res;
+                                            var assignments = document.getElementsByClassName("assignments");
+                                            for (var i = 0; i < assignments.length; i++) {
+                                                for (var j = 0; j < rangeList.length; j++) {
+                                                    var opt = document.createElement("option");
+                                                    opt.setAttribute("value", rangeList[j].toString());
+                                                    opt.innerHTML = rangeList[j].toString();
+                                                    assignments[i].appendChild(opt);
+                                                }
+                                            }
+                                        },
+                                        error: function () {
+                                            alert("fail to get range list");
+                                        }
+                                    });
+                                    
+                                }
+                                
+                                function postAssignMem(ob) {
+                                    var da = ob.parentNode.parentNode.parentNode;
+                                    var taskBody = da.parentNode;
+                                    
+                                    var memAssigns = $(da).find("select");
+                                    var translator = memAssigns[0].options[memAssigns[0].selectedIndex].value.toString();
+                                    var section = memAssigns[1].options[memAssigns[1].selectedIndex].value.toString();
+                                    var t_s = {}
+                                    t_s[translator] = section;
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/translator_setion/" + taskBody.id,
+                                        data: JSON.stringify(t_s),
+                                        error: function () {
+                                            alert("fail to post translators and sections");
+                                        }
+                                    });
+                                    
+                                    da.style.display = "none";
+                                }
+                            </script>
+                            <div id="segment-file" class="task">
+                                <div class="task-content">
+                                    <div class="task-header">
+                                        <span class="close" onclick="closeWindow()">&times;</span>
+                                        <h3>Segment File</h3>
+                                    </div>
+                                    <div id="segment-options" class="task-body">
+                                        <div id="customized-range-header" class="left-option" onclick="selectRangeMode(this)">
+                                            Customized Range
+                                        </div>
+                                        <div id="fixed-range-header" class="right-option" onclick="selectRangeMode(this)">
+                                            Fixed Range
+                                        </div>
+                                    </div>
+                                    <div id="customized" class="task-body" style="display:block;">
+                                        <div name="custmoized-range">
+                                            <div class="input-area">
+                                                <span class="new-range" onclick="newRange(this)" style="padding-top:5px;">+</span>
+                                            </div>
+                                            <div class="input-area">
+                                                <label class="from">from</label>
+                                                <input class="form-group" type="number" name="page_int">
+                                            </div>
+                                            <div class="input-area">
+                                                <label class="to">to</label>
+                                                <input class="form-group" type="number" name="page_int">
+                                            </div>
+                                            <div class="input-area" name="delete-range">
+                                                <span class="close" onclick="deleteRange(this)" style="padding-top:10px;">&times;</span>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div id="fixed" class="task-body" style="display:none">
+                                        <div class="input-area">
+                                            <label class="step">step</label>
+                                            <input class="form-group" type="number" name="page_int" placeholder="1">
+                                        </div>
+                                    </div>
+                                    <div class="task-settings">
+                                        <button id="post-segments" class="selection" onclick="postSegmentRanges(this)">Confirm</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="distribute-assignments" class="task">
+                                <div class="task-content">
+                                    <div class="task-header">
+                                        <span class="close" onclick="closeWindow()">&times;</span>
+                                        <h3>Distribute Assignments</h3>
+                                    </div>
+                                    
+                                    <div id="distribution" class="task-body">
+                                        <div name="group-member">
+<!--
+                                            <div class="input-area">
+                                                <span class="new-range" onclick="newRange(this)" style="padding-top:5px;">+</span>
+                                            </div>
+-->
+                                            <div class="input-area">
+                                                <select class="member mem-assign">
+                                                    <option value="--none--">--none--</option>
+                                                    <option value="Allen">Allen</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-area">
+                                                <select class="assignments mem-assign">
+                                                    <option value="--none--">--none--</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-area" name="delete-member">
+                                                <span class="close" onclick="deleteRange(this)" style="padding-top:10px;">&times;</span>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="task-settings">
+                                        <button id="post-members" class="selection" onclick="postAssignMem(this)">Confirm</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <script>
+//                            var isIconAdded = false;
+                            function expand(ob) {
+                                if (!$(ob).is('.el-table__expand-icon--expanded')) {
+                                    ob.classList.add('el-table__expand-icon--expanded');
+                                    var projDetails = document.getElementById('project-details');
+                                    projDetails.style.display = 'inline-block';
+                                    ob.parentNode.parentNode.parentNode.parentNode.appendChild(projDetails);
+                                } else {
+                                    ob.classList.remove('el-table__expand-icon--expanded');
+                                    var projDetails = document.getElementById('project-details');
+                                    projDetails.style.display = 'none';
+                                    $("body").append(projDetails);
+                                }
+                                var taskBody = ob.parentNode.parentNode.parentNode.parentNode;
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/get_setting_item/" + taskBody.id,
+//                                    data: JSON.stringify(taskBody.id),
+                                    success: function (res) {
+                                        var viewTranslation = document.getElementById("view-translation");
+                                        viewTranslation.setAttribute("href", res["href"]);
+                                    },
+                                    error: function () {
+                                        alert("fail to get translation page");
+                                    }
+                                });
+    
+                            }
+                        </script>
+                    </div>
+                </div>
+                
+                <div class="el-card-item">
+                    <table cellspacing="0" cellpadding="0" border="0" class="el-table-head">
+                        <tr>
+                            <th colspan="1" rowspan="1">
+                                <div class="cell"
+                            </th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- SCRIPTS -->
+    <script src="../static/js/bootstrap/jquery.js"></script>
+    <script src="../static/js/bootstrap/bootstrap.min.js"></script>
+    <script src="../static/js/bootstrap/jquery.parallax.js"></script>
+    <script src="../static/js/bootstrap/modernizr.custom.js"></script>
+    <script src="../static/js/bootstrap/SmoothScroll.js"></script>
+    <script src="../static/js/bootstrap/main.js"></script>
+    <script src="../static/js/bootstrap/custom.js"></script>
+    <script src="../static/js/upload/upload.js"></script>
+    <script src="../static/js/upload/papaparse.js"></script>
+    <script src="../static/js/upload/jschardet.min.js"></script>
+</body>
+<style>
+a:hover{text-decoration:underline;color: white;}
+</style>
+</html>

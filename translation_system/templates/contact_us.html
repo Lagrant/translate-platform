@@ -1,0 +1,186 @@
+
+<html lang="en">
+<head>
+
+    <title>Contact Us</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="/static/css/bootstrap/bootstrap.css">
+    <link rel="stylesheet" href="/static/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="/static/css/bootstrap/tooplate-style.css">
+    <link rel="stylesheet" href="../static/css/bootstrap/user_img.css">
+    <link rel="stylesheet" href="../static/css/contact_us.css">
+
+</head>
+<body>
+
+<div class="navbar custom-navbar navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- NAVBAR HEADER -->
+        <div class="navbar-header">
+            <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon icon-bar"></span>
+                <span class="icon icon-bar"></span>
+                <span class="icon icon-bar"></span>
+            </button>
+            <!-- lOGO -->
+            <a href="#" class="navbar-brand">DaGoo!</a>
+        </div>
+
+        <!-- MENU LINKS -->
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/" class="smoothScroll">Home</a></li>
+                <li><a href="/products" class="smoothScroll">Products</a></li>
+                <li><a href="/gallery/" class="smoothScroll">Gallery</a></li>
+                <li><a href="/about_us" class="smoothScroll">About us</a></li>
+                <li>
+                    <div style="width: 2px; height: 20px; background-color: white; margin: 15px"></div>
+                </li>
+                {% if user %}
+                    <li class="user_img"><a class="page-scroll" href="/user/">
+                        <div class="to3" style="margin-top: -10px;">
+                            <div class="to2">
+                                <div class="to1">
+                                    <img class="to" src="/static/user/{{ user.email }}/img/user_img.jpg">
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    </li>
+                    <li><a href="/login/" class="page-scroll">Quit</a></li>
+                {% else %}
+                    <li>
+                        <a href="/login/" class="">Log in/Sign up</a>
+                    </li>
+                {% endif %}
+                {% if user %}
+                    {% if user.permission==100 %}
+                        <li>
+                            <a href="/admin/?manager={{ user.username }}" class="">manage</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+            {% if user %}
+                <script>
+
+                    var permi = '' +{{ user.permission }};
+                    switch (permi) {
+                        case "1":
+                            $('.to3').css('background-color', '#aac4bc');
+                            break;
+                        case "2":
+                            $('.to3').css('background-color', '#ae853b');
+                            break;
+                        case "3":
+                            $('.to3').css('background-color', '#dfdc5d');
+                            break;
+                        case "100":
+                            $('.to3').css('background-color', '#ede4b8');
+                            break;
+                        default:
+                            $('.to3').css('background-color', 'white');
+                    }
+                </script>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<section id="contact" class="parallax-section">
+     <div class="container">
+          <div class="row">
+
+               <div class="col-md-offset-3 col-md-6 col-sm-12">
+                    <div class="section-title">
+                         <h1>Talk to us!</h1>
+                    </div>
+               </div>
+
+               <div class="clearfix"></div>
+
+               <div class="col-md-offset-2 col-md-8 col-sm-12">
+
+                    <form id="contact-form" action="#" method="get" role="form">
+                         <div class="col-md-6 col-sm-6">
+                              <input type="text" class="form-control" id="cf-name" name="cf-name" placeholder="Name">
+                         </div>
+
+                         <div class="col-md-6 col-sm-6">
+                              <input type="email" class="form-control" id="cf-email" name="cf-email" placeholder="Email Address">
+                         </div>
+
+                         <div class="col-md-12 col-sm-12">
+                              <input type="text" class="form-control" id="cf-subject" name="subject" placeholder="Subject">
+                              <textarea class="form-control" rows="5" id="cf-message" name="cf-message" placeholder="Message"></textarea>
+                         </div>
+
+                         <div class="col-md-offset-4 col-md-4 col-sm-offset-4 col-sm-4">
+                              <div class="section-btn">
+                                   <button type="submit" class="form-control" id="cf-submit" name="submit"><span data-hover="Send Message">Send Message</span></button>
+                              </div>
+                         </div>
+                    </form>
+               </div>
+
+          </div>
+     </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+     <div class="container">
+          <div class="row">
+              <div class="col-md-5 col-sm-6">
+                  <h3>DaGoo Team</h3>
+                  <div class="col-lg-2" style="width: 14%;height: 300px;">
+                      <a class="smoothScroll" style="font-weight: normal;color:#BBBBBF;font-size: 25px;"><img src="/static/images/code.png" style="width: 150px;height: 150px;"></a>
+                  </div>
+              </div>
+
+               <div class="col-md-4 col-sm-6">
+                    <div class="footer-info">
+                    	<h3>Keep in touch</h3>
+                         <p><a href="tel:"></a></p>
+                         <p>--<a href="mailto:DagooTeam@hotmail.com">DagooTeam@hotmail.com</a></p>
+                         <p>--<a href="#">Location：Room 411, Building ChengDao, the Chinese University of Hong Kong(Shenzhen)</a></p>
+                    </div>
+               </div>
+
+               <div class="col-md-3 col-sm-12">
+
+                    <h3>About Us</h3>
+                    <ul class="social-icon">
+                         <li><a href="/about_us" class="fa fa-link">Details about us</a></li>
+                    </ul>
+
+               </div>
+
+               <div class="clearfix"></div>
+
+               <div class="col-md-12 col-sm-12">
+                    <div class="copyright-text">
+                    </div>
+               </div>
+
+          </div>
+     </div>
+</footer>
+
+<script src="/static/js/bootstrap/jquery.js"></script>
+<script src="/static/js/bootstrap/bootstrap.min.js"></script>
+<script src="/static/js/bootstrap/jquery.parallax.js"></script>
+<script src="/static/js/bootstrap/modernizr.custom.js"></script>
+<script src="/static/js/bootstrap/SmoothScroll.js"></script>
+<script src="/static/js/bootstrap/main.js"></script>
+<script src="/static/js/bootstrap/custom.js"></script>
+</body>
+</html>
