@@ -31,14 +31,64 @@
     </head>
     
     <body>
+        
         <div id="preview" class="pdfarea">
-            <a class="pdf" href="{{ projId }}"></a>
+            <a id="projId" class="pdf" href="/files/{{ projId }}"></a>
         </div>
         
-        <div id="show" class="pdfarea">
+        <div id="process" class="pdfarea" style="display:none"></div>
+        
+        <div id="show" class="pdfarea" style="display:block">
 <!--            <a class="pdf" href="../../guibas1985.pdf"></a>-->
-            <a class="pdf" href="{{ translationId }}"></a>
+            <a id="translationId" class="pdf" href="/files/{{ translationId }}"></a>
         </div>
+        <script>
+            var percent = 0;
+            if ({{tid}} === -1) {
+                $("#process").style.display = "none";
+            } else {
+                $("#show").style.display = "none";
+                $("#process").style.display = "block";
+                while (percent < 100) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/query/" + {{tid}},
+                        success: function (res) {
+                            if (res == "false") {
+                                alert("fail to translate file");
+                            } else {
+                                var result = JSON.parse(res);
+                                percent = parseFloat(result["percent"]);
+                                $("#process").innerHTML = "The process of translation is " + result["percent"] + "%";
+                            }
+                        },
+                        error: function (res) {
+                            alert("fail to load translation file");
+                        }
+                    });
+                }
+                /*var translationId = {{translationId}};
+                var tid = {{tid}};
+                var downloadParams = (translationId.toString(), tid.toString());*/
+                $.ajax({
+                    type: "POST",
+                    url: "/download_file/{{translationId}}",
+                    data: JSON.stringify({{tid}})
+                    success: function (res) {
+                        if (res == "false") {
+                            alert("fail to download translated file");
+                        } else {
+                            $("#process").style.display = "none";
+                            $("#show").style.display = "block";
+                        }
+                    },
+                    error: function () {
+                        alert("fail to load translated file");
+                    }
+                });
+            }
+            
+        </script>
         <script>
             $(".pdf").media({width:"100%", height:"100%"});
         </script>

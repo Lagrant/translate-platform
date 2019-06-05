@@ -2,23 +2,16 @@ from datetime import datetime, timedelta
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash  # 转换密码用到的库
 
 from . import app
 
-# 这里登陆的是root用户，要填上自己的密码，MySQL的默认端口是3306，填上之前创建的数据库名jianshu,连接方式参考 \
-#  http://docs.sqlalchemy.org/en/latest/dialects/mysql.html
-# qYA2iIFnIJScti3s
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mks:mks2019.@localhost:3306/mks?charset=utf8'
-# 设置这一项是每次请求结束后都会自动提交数据库中的变动
-app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SQLALCHEMY_POOL_SIZE'] = 100
-app.config['SQLALCHEMY_POOL_RECYCLE'] = 3600
+
 # 实例化
 
 db = SQLAlchemy(app)
-
+migrate = Migrate(app, db)
 
 translators_tasks = db.Table("translators_projects",
                                db.Column("translator_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
@@ -96,19 +89,19 @@ class project(db.Model):
     deadline = db.Column(db.DateTime, nullable=False)
     name = db.Column(db.String(256), nullable=False, unique=True)
     from_language = db.Column(db.String(32), nullable=False)
-    to_language = db.Column(db.String(32), nullable=False)
-    group = db.Column(db.String(64))
+    to_language = db.Column(db.String(32), nullable=True)
+    href = db.Column(db.String(256), nullable=False)
     
     book = db.relationship("book", lazy=True)
     tasks = db.relationship("task", lazy=True)
 
-    def __init__(self, name, manager_id, deadline, from_language, to_language, group):
+    def __init__(self, name, manager_id, deadline, href, from_language, to_language=""):
         self.name = name
         self.manager_id = manager_id
         self.deadline = deadline
         self.from_language = from_language
         self.to_language = to_language
-        self.group = group
+        self.href = href
 
 
 class task(db.Model):

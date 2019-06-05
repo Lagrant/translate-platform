@@ -84,7 +84,7 @@
                         </li>
                     {% endif %}
                     {% if user %}
-                        {% if user.permission==100 %}
+                        {% if user.role==100 %}
                             <li>
                                 <a href="/admin/?manager={{ user.username }}" class="" style="border-bottom-color: transparent;">manage</a>
                             </li>
@@ -94,19 +94,13 @@
                 {% if user %}
                     <script>
 
-                        var permi = '' +{{ user.permission }};
+                        var permi = '' +{{ user.role }};
                         switch (permi) {
                             case "1":
                                 $('.to3').css('background-color', '#aac4bc');
                                 break;
-                            case "2":
+                            case "0":
                                 $('.to3').css('background-color', '#ae853b');
-                                break;
-                            case "3":
-                                $('.to3').css('background-color', '#dfdc5d');
-                                break;
-                            case "100":
-                                $('.to3').css('background-color', '#ede4b8');
                                 break;
                             default:
                                 $('.to3').css('background-color', 'white');
@@ -147,12 +141,12 @@
                                     <input type="file" name="foreign-book" id="foreign-book" style="display:none" >
                                 </form>
                             </div>
-                            <div class="task-settings">Group: 
+                            <!--<div class="task-settings">Group: 
                                 <select class="selection">
                                     <option value="--none--">--none--</option>
                                     <option value="csgroup">csgroup</option>
                                 </select>
-                            </div>
+                            </div>-->
                             <div class="task-settings">Deadline:
                                 <input type="date" id="ddl" class="selection" name="ddl">
                             </div>
@@ -174,9 +168,9 @@
                                     <th colspan="2" rowspan="1">
                                         <div class="cell">Name</div>
                                     </th>
-                                    <th colspan="2" rowspan="1">
+                                    <!--<th colspan="2" rowspan="1">
                                         <div class="cell">Group</div>
-                                    </th>
+                                    </th>-->
                                     <th colspan="2" rowspan="1">
                                         <div class="cell">Deadline</div>
                                     </th>
@@ -187,58 +181,6 @@
                             </table>
                         </div>
                         <script>
-                            /*function drawAssignDetails(setting) {
-                                var item = $('<td rowspan="1" colspan="2">\n\
-                                            <div class="cell">' + setting + '</div>\n\
-                                        </td>');
-                                return item;
-                            }
-                            
-                            function drawAssignItems(result) {
-                                console.log(result);
-                                var iconSettings = $('<td rowspan="1" colspan="1">\n\
-                                            <div class="cell">\n\
-                                                <div name="icon-settings" class="el-table__expand-icon tri-left" onclick="expand(this)"></div>\n\
-                                            </div>\n\
-                                        </td>');
-                                
-                                var progress = $('<td rowspan="1" colspan="2">\n\
-                                            <div class="cell">\n\
-                                                100%\n\
-                                            </div>\n\
-                                        </td>');
-                                
-                                var items = new Array();
-                                
-                                items.push(drawAssignDetails(result['name']));
-                                items.push(drawAssignDetails(result['group']));
-                                items.push(drawAssignDetails(result['ddl']));
-                                
-                                var titles = $('<tr></tr>');
-                                titles.append(iconSettings);
-                                for (var i = 0; i < items.length; i++) {
-                                    titles.append(items[i]);
-                                }
-                                titles.append(progress);
-                                var taskBody = $('<tbody></tbody>');
-                                taskBody.attr('id', result['name']);
-                                taskBody.append(titles);
-                                
-                                $("#task-content").append(taskBody);
-                            }
-                            
-                            function drawAssign() {
-                                $.ajax({
-                                    type: "POST",
-                                    url: "/get_setting_list",
-                                    success: function (res) {
-                                        var results = res;
-                                        for (i in results) {
-                                            drawAssignItems(results[i]);
-                                        }
-                                    },
-                                });
-                            }*/
                             $(document).ready(function () {
             
                                 drawAssign();
@@ -286,8 +228,8 @@
                                                 </div>
                                             </div>
                                             <div class="el-card__body">
-                                                <div>
-
+                                                <div style="cursor:pointer" onclick="termReplaceSettings(this)">
+                                                    Settings
                                                 </div>
                                             </div>
                                         </div>
@@ -408,6 +350,39 @@
                                     taskContent.parentNode.style.display = "none";
                                 }
                                 
+                                function termReplaceSettings(ob) {
+                                    
+                                    $("#replace-terms")[0].style.display = "block";
+                                    var taskBody = ob.parentNode.parentNode.parentNode.parentNode.parentNode;
+                                    taskBody.appendChild($("#replace-terms")[0]);
+                                    
+                                }
+                                
+                                function postTerms(ob) {
+                                    var da = ob.parentNode.parentNode.parentNode;
+                                    var taskBody = da.parentNode;
+                                    da.style.display = "none";
+                                    
+                                    var langAndDiscp = $(da).find("select");
+                                    var language = langAndDiscp[0].options[langAndDiscp[0].selectedIndex].value.toString();
+                                    var discpline = langAndDiscp[1].options[langAndDiscp[1].selectedIndex].value.toString();
+                                    
+                                    if (language === "--none--") {
+                                        alert("language must not be empty");
+                                        return;
+                                    }
+                                    var l_d = [language, discpline]
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/terms/" + taskBody.id,
+                                        data: JSON.stringify(l_d),
+                                        error: function () {
+                                            alert("fail to replace terms");
+                                        }
+                                    });
+                                                                        
+                                }
+                                
                                 function distrAssigns(ob) {
                                     // set group member
                                     // set assignments
@@ -459,6 +434,51 @@
                                     da.style.display = "none";
                                 }
                             </script>
+                            <div id="replace-terms" class="task">
+                                <div class="task-content">
+                                    <div class="task-header">
+                                        <span class="close" onclick="closeWindow()">&times;</span>
+                                        <h3>Replace Terms</h3>
+                                    </div>
+                                    
+                                    <div class="task-body">
+                                        <div class="left-option">
+                                            Language
+                                        </div>
+                                        <div class="right-option">
+                                            Discipine
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="replacement" class="task-body">
+                                        <div name="group-member">
+
+                                            
+                                            <div class="input-area">
+                                                <select class="languages">
+                                                    <option value="--none--">--none--</option>
+                                                    <option value="en">English</option>
+                                                    <option value="zh">Chinese</option>
+                                                    <option value="jp">Japnese</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-area">
+                                                <select class="discplines">
+                                                    <option value="--none--">--none--</option>
+                                                    <option value="none">not available now</option>
+                                                </select>
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="task-settings">
+                                        <button id="post-terms" class="selection" onclick="postTerms(this)">Confirm</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div id="segment-file" class="task">
                                 <div class="task-content">
                                     <div class="task-header">
@@ -563,8 +583,9 @@
                                     url: "/get_setting_item/" + taskBody.id,
 //                                    data: JSON.stringify(taskBody.id),
                                     success: function (res) {
+                                        result = JSON.parse(res);
                                         var viewTranslation = document.getElementById("view-translation");
-                                        viewTranslation.setAttribute("href", res["href"]);
+                                        viewTranslation.setAttribute("href", result["href"]);
                                     },
                                     error: function () {
                                         alert("fail to get translation page");

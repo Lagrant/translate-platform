@@ -1,0 +1,81 @@
+Chapter 15
+腐蚀 and 应力腐蚀ribed as the destruction or deterioration of a metal or
+alloy by way of a chemical or electrochemical reaction with its environment. It can
+be considered as 萃取冶金 in reverse, or the process by which a metal is
+returned to its natural state—an oxide. 腐蚀 can occur in wet (aqueous)
+environments and also in dry (gaseous) environments, and can occur at a high rate
+or a very slow rate. It can also take many forms, as discussed in the next section.
+Nearly, all metallic corrosion processes involve the transfer of 电荷
+in aqueous solutions. Consider the corrosion of zinc in 盐酸 (HCl) acid. Zinc
+reacts with the acid to form soluble 氯化锌 and liberates hydrogen bubbles at
+the surface. It occurs by two reactions. The first is the oxidation of Zn to Zn++ and
+the liberation of 2 electrons, and the second is the combination of the two electrons
+with 2 hydrogen ions to yield 2 hydrogen atoms or H2. The reactions are as follows:
+Zn ! Znþþ þ2e" ð15:1Þ
+2Hþ þ2e" ! H2; ð15:2Þ
+for a total reaction described by:
+Zn þ2HCl ! ZnCl2 þH2 ð15:3Þ
+or in ionic form:
+Znþ2Hþ þ2Cl" ! Znþþ þ2Cl" þH2: ð15:4Þ
+The reaction in Eq. (15.1) is the 阳极, or 氧化反应 in which the valence
+of Zn increases from 0 to +2 and liberates electrons. The reaction in Eq. (15.2) is the
+阴极, or 还原反应 in which the oxidation state of H decreases from +1
+to 0 by consuming electrons. Water is the carrier of ions, or the 电解质. Note
+that the reactions shown in Eqs. (15.1) and (15.2) can occur simultaneously on the
+surface of a piece of Zn immersed in HCl. These reactions involve the transfer of
+charge or current. The relationship between current and mass of the reacting metal,
+M, is given by Faraday’s law:
+© Springer Science+Business Media New York 2017
+G.S. Was, Fundamentals of Radiation Materials Science,
+DOI 10.1007/978-1-4939-3438-6_15
+857
+M ¼ kIt; ð15:5Þ
+where I is the current (amperes, A), t is the time (s), and k is the electrochemical
+当量 (g/库仑 or g/C) given by:
+k ¼ A=nF; ð15:6Þ
+where A is the 原子质量, n is the number of 当量s exchanged, and F is
+Faraday’s constant (96,500 C/eq). Recall that a 库仑 is the amount of charge
+transferred by a current of one ampere for 1 s. Hence, the 腐蚀速率 of a metal is
+directly related to its 反应速度 with the environment.
+This chapter will focus on the fundamentals of 水溶液腐蚀 by virtue of its
+importance in water reactor systems, and provide a foundation for understanding
+the interplay between corrosion and irradiation in the degradation of metals and
+alloys treated in Chap. 16. It begins with a description of the various forms of
+corrosion followed by the 热力学 of corrosion including the use of
+potential–pH or 普尔贝图s, 腐蚀动力学, 钝化, 缝隙腐蚀,
+and then stress corrosion cracking. The latter two topics provide a basis for
+understanding the processes of 辐照加速腐蚀 (IAC) and
+辐照诱发应力腐蚀断裂 (IASCC).
+15.1 Forms of 腐蚀
+While corrosion is most often envisioned as the loss of metal from a surface
+exposed to the 电解质, corrosion can take many forms as summarized in
+Fig. 15.1. The eight forms of corrosion include 均匀腐蚀, 缝隙腐蚀,
+点蚀, 晶间损伤or 脱合金化, 冲蚀,
+stress corrosion cracking, and 氢致损伤.
+Uniform corrosion
+Uniform corrosion is characterized by a reaction that proceeds uniformly over the
+entire surface of the component, e.g., rusting of iron or tarnishing of silver. Various
+units are used to describe the uniform removal of metal, such as the 减薄速率 in
+mm/yr or the 质量损失 per unit area in g/m2yr. Uniform corrosion is not really
+uniform on a 微观 level. In fact, the orientation of grain faces on the surface
+will determine which corrodes the fastest. As grains dissolve away, preferential
+sites for 损伤 will alternate. All other forms of corrosion can be broadly classified
+as 局部腐蚀.
+Crevice corrosion
+Crevice corrosion is characterized by intense 局部腐蚀 that occurs most
+frequently within crevices or 被遮盖区域 on metal surfaces exposed to corrosives.
+The 损伤 is usually associated with small volumes of 静止溶液.
+858 15 腐蚀 and 应力腐蚀m Blister
+Surface cracks
+Internal voids
+Galvanic
+Intergranular
+Active Noble
+Crevice Dealloying
+Layer Plug
+Pitting
+Erosion
+Cavitation Fretting
+应力腐蚀igue 氢致断裂
+Fig. 15.1 Eight forms of corrosion (after [2])
+15.1 Forms of 腐蚀 859

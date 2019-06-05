@@ -17,12 +17,16 @@ from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pymysql
-from flask import Flask, request, json, render_template, session, jsonify, url_for, current_app, g, redirect, Response, flash
+from flask import Flask, request, json, render_template, session, jsonify, url_for, current_app, g, redirect, Response, flash, send_file
 from xlrd import open_workbook
 from .model import user, login, mailconfirm, db, book, task, project, translators_tasks
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfFileReader, PdfFileWriter
 from . import app
+from .SQLEncoder import AlchemyEncoder
+from .miner import parse
+from .ahocorasick import AhoCorasick
+from .fanyigou import upload_to_fanyigou, query_process, download_file
 
 log = app.logger
 
@@ -367,12 +371,13 @@ def upload_file(filename):
             
             f = request.files['file']
             fname = secure_filename(f.filename)
-            path_file_name = cur_dir + fname
+            path_file_name = cur_dir + "/" + fname
             f.save(path_file_name)
 
             file_type = fname.split(".")[-1]
-            language = "English"
+            language = "en"
             
+            parse(path_file_name)
             pdf_reader = PdfFileReader(path_file_name)
             page_num = pdf_reader.getNumPages()
             
@@ -403,6 +408,7 @@ def get_page_num(projectID):
         user1 = user.query.filter_by(email=email).first()
         if user1 is None:
             return "false"
+
         current_book = book.query.filter_by(project_id=projectID).first()
         page_number = current_book.page_number
         log.info(page_number)
@@ -418,12 +424,14 @@ def set_setting_list():
         if user1 is None:
             return "false"
         if request.method == 'POST':
-            setting_list = request.get_data()
+            setting_list = json.loads(request.get_data())
+            log.info(setting_list)
             cur_dir = "./data/user/" + email
             cur_dir = cur_dir + "/" + setting_list["name"]
-            os.makedirs(cur_dir)
+            if not os.path.exists(cur_dir):
+                os.makedirs(cur_dir)
             project1 = project(name = setting_list["name"], manager_id = user1.id, deadline = setting_list["ddl"],
-             from_language = "English", to_language = "Chinese", group = setting_list["group"])
+             href = setting_list["href"], from_language = "en")
             db.session.add(project1)
             db.session.commit()
 
@@ -445,7 +453,8 @@ def get_setting_list():
         item_list = project.query.all()
         item_list_dict = []
         for i_list in item_list:
-            item_list_dict.append(i_list.__dict__)
+            item_list_dict.append(json.dumps(i_list, cls = AlchemyEncoder))
+            
         return jsonify(item_list_dict)
     else:
         return "false"
@@ -459,8 +468,8 @@ def get_setting_item(name):
             return "false"
         
         item = project.query.filter_by(name = name).first()
-        item_dict = item.__dict__
-        return jsonify(item_dict)
+
+        return json.dumps(item, cls = AlchemyEncoder)
     else:
         return "false"
 
@@ -492,7 +501,80 @@ def segment_file(name):
     else:
         return "false"
         
-        
+@app.route('/terms/<string:name>', methods=['POST','GET'])
+def replace_terms(name):
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1 is None:
+            return "false"
+        if request.method == 'POST':
+            l_d = json.loads(request.get_data())
+            target_language = l_d[0]
+
+            current_project = project.query.filter_by(name=name).first()
+            current_project.to_language = target_language
+            current_project_id = current_project.id
+            current_book = book.query.filter_by(project_id=current_project_id).first()
+            current_book_name = current_book.book_name
+            source_language = current_book.language
+            text_current_book_name = current_book_name[0: current_book_name.rindex(".")] + ".txt"
+            term_current_book_name = current_book_name[0: current_book_name.rindex(".")] + "_term.txt"
+
+            target_language_index = {}
+            source_language_string = []
+
+            with open("./terms/wording-cn-jp.csv", "r") as f:
+                line = f.readline()
+
+                while line:
+                    line = line.strip()
+                    words = line.split(",")
+                    if source_language == "en":
+                        source_language_string.append(words[0])
+                    elif source_language == "zh":
+                        source_language_string.append(words[1])
+                    elif source_language == "jp":
+                        source_language_string.append(words[2])
+                    if target_language == "en":
+                        target_language_index[source_language_string[-1]] = words[0]
+                    elif target_language == "zh":
+                        target_language_index[source_language_string[-1]] = words[1]
+                    elif target_language == "jp":
+                        target_language_index[source_language_string[-1]] = words[2]
+                    
+                    line = f.readline()
+            
+            with open(text_current_book_name, "r") as f:
+                
+                line = f.readline()
+                text = ""
+                while line:
+                    end_character = line[-1]
+                    tree=AhoCorasick(*source_language_string)
+                    results = tree.search(line, True)
+
+                    lr = []
+                    while len(results) > 0:
+                        lr.append(results.pop())
+                    lr = sorted(lr, key=lambda x: x[1][0], reverse=True)
+
+                    for i in range(0,len(lr)):
+                        source_language_index = lr[i][0]
+                        start_index = lr[i][1][0]
+                        end_index = lr[i][1][1]
+
+                        substring1 = line[0:start_index]
+                        substring2 = line[end_index:-1]
+                        line = substring1 + target_language_index[source_language_index] + substring2 + end_character
+                    text += line
+                    line = f.readline()
+                
+                with open(term_current_book_name, "w", encoding="utf-8") as fl:
+                        fl.write(text)
+            return "true"
+    else:
+        return "false"
 
 @app.route('/get_range_list/<string:name>', methods=['POST','GET'])
 def get_range_list(name):
@@ -537,18 +619,73 @@ def get_t_s_file(name):
         filename = out_files_list[section]
         return jsonify(filename)
 
+@app.route("/files/<path:path>", methods=['POST','GET'])
+def send_source_file(path):
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1 is None:
+            return "false"
+        return send_file("../"+path)
+    else: return "false"
+
 @app.route('/translation/<list:ids>', methods=['POST','GET'])
 def toTranslationPage(ids):
     """
     call translation api
     """
-    
-    translation_path_file = '../static/uploads/'
-    translation_fname = secure_filename(ids[1])
-    fname = secure_filename(ids[0])
-    if fname not in book_list.keys():
-        return 'File not found'
-    return render_template('translationpage.html', projId = book_list[fname], translationId = translation_path_file + translation_fname)
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1 is None:
+            return "false"
+        log.info("ids0 = %s", ids[0])
+        log.info("ids1 = %s", ids[1])
+        current_project = project.query.filter_by(name=ids[0]).first()
+        log.info(current_project.name)
+        current_book = book.query.filter_by(project_id=current_project.id).first()
+        projId = current_book.book_name
+        translationId = "./data/user/" + email + "/" + current_project.name + "/" + ids[1]
+        if not os.path.isfile(translationId):
+            tid = upload_to_fanyigou(book, current_project.id, current_project.from_language, current_project.to_language)
+
+            if tid == False:
+                return "false"
+        else: tid = -1
+        
+        return render_template('translationpage.html', tid = tid, projId = projId, translationId = translationId)
+    else:
+        return "false"
+
+@app.route('/query/<tid>', methods=['POST','GET'])
+def query(tid):
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1 is None:
+            return "false"
+        if request.method == 'POST':
+            #查询翻译进度
+            process_data = query_process(tid)
+            if process_data == False:
+                return "false"
+            return jsonify(process_data)
+    else: return "false"    
+
+@app.route('/download_file/<path:path>', methods=['POST','GET'])
+def download(path):
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1 is None:
+            return "false"
+        if request.method == 'POST':
+            #下载翻译结果
+            # ids[0] = cur_dir, ids[1] = tid
+            tid = json.loads(request.get_data())
+            feed_back = download_file("../"+path,tid)
+            return feed_back
+    else: return "false"
 
 @app.route('/translator', methods=['POST','GET'])
 def toTranslatorPage():

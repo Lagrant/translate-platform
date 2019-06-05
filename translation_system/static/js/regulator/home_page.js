@@ -55,19 +55,19 @@ function newTaskSettings(ob) {
     }
 //    settingList["foreignBook"] = $(foreignBook).val();
     
-    var ddl = settingListElements[3].children[0];
+    var ddl = settingListElements[2].children[0];
     if ($(ddl).val() === "") {
         alert("Deadline must not be empty");
         return;
     }
     settingList["ddl"] = $(ddl).val();
     
-    var group = settingListElements[2].children[0];
+   /* var group = settingListElements[2].children[0];
     if (group.options[group.selectedIndex].value === "--none--") {
         alert("Group must not be empty");
         return;
     }
-    settingList["group"] = group.options[group.selectedIndex].value;
+    settingList["group"] = group.options[group.selectedIndex].value;*/
     
     var projName = settingListElements[0].children[0];
     if ($(projName).val() === "") {
@@ -82,35 +82,35 @@ function newTaskSettings(ob) {
     var fileType, nameOnly;
     console.log(file_name);
     
-    
-    settingList["filename"] = nameOnly + "." + fileType;
-    settingList["href"] = "/translation/" + nameOnly + "." + fileType + "+translation_" + nameOnly + "." + fileType;
+    if (file_name.lastIndexOf(".")!=-1){
+        fileType = (file_name.substring(file_name.lastIndexOf(".")+1,file_name.length)).toLowerCase();
+        nameOnly = file_name.substring(0,file_name.lastIndexOf("."));
+        nameOnly = nameOnly.split("\\").slice(-1);
+    //        nameOnly = nameOnly[0].replace(/(\s*$)/g,"");
+        nameOnly = nameOnly[0];
+        settingList["filename"] = nameOnly + "." + fileType;
+        settingList["href"] = "/translation/" + settingList["name"] + "+" + nameOnly + "_translation" + "." + fileType;
+    } else {
+        alert("invalid file name!");
+        return;
+    }
     $.ajax({
         type: "POST",
         url: "/set_setting_list",
         data: JSON.stringify(settingList),
         success: function (res) {
             if (res["status"] == 200) {
-                if (file_name.lastIndexOf(".")!=-1){
-                    fileType = (file_name.substring(file_name.lastIndexOf(".")+1,file_name.length)).toLowerCase();
-                    nameOnly = file_name.substring(0,file_name.lastIndexOf("."));
-                    nameOnly = nameOnly.split("\\").slice(-1);
-            //        nameOnly = nameOnly[0].replace(/(\s*$)/g,"");
-                    nameOnly = nameOnly[0];
-                    if(fileType=='pdf')
-                    {
-                        var fd=new FormData();
-            
-                        fd.append("file",document.getElementById('foreign-book').files[0]);//这是获取上传的文件
-                        fd.append("label","pdf");
-                        fd.append("projectId", res["projectId"]);
-            
-                        var xhr=new XMLHttpRequest();
-                        xhr.open("POST","/upload_file/" + nameOnly);//要传到后台方法的路径
-                        xhr.addEventListener("load",uploadComplete,false);
-                        xhr.send(fd)
-                    }
-                    
+                if(fileType=='pdf'){
+                    var fd=new FormData();
+
+                    fd.append("file",document.getElementById('foreign-book').files[0]);//这是获取上传的文件
+                    fd.append("label","pdf");
+                    fd.append("projectId", res["projectId"]);
+
+                    var xhr=new XMLHttpRequest();
+                    xhr.open("POST","/upload_file/" + nameOnly);//要传到后台方法的路径
+                    xhr.addEventListener("load",uploadComplete,false);
+                    xhr.send(fd)
                 }
             }
         },
@@ -155,8 +155,8 @@ function drawAssignItems(result) {
         items.push(drawAssignDetails(result[item]));
     }*/
     items.push(drawAssignDetails(result['name']));
-    items.push(drawAssignDetails(result['group']));
-    items.push(drawAssignDetails(result['ddl']));
+//    items.push(drawAssignDetails(result['group']));
+    items.push(drawAssignDetails(result['deadline']));
 
     var titles = $('<tr></tr>');
     titles.append(iconSettings);
@@ -186,7 +186,7 @@ function drawAssign() {
             }
             var results = res;
             for (i in results) {
-                drawAssignItems(results[i]);
+                drawAssignItems(JSON.parse(results[i]));
             }
         },
     });
@@ -202,10 +202,11 @@ function beginSeg(ob) {
     $.ajax({
         type: "POST",
         url: "/get_setting_item/" + taskBody.id,
-        success: function (res) {
+        success: function (result) {
+            result = JSON.parse(result)
             $.ajax({
                 type: "POST",
-                url: "/page_number/" + res["id"],
+                url: "/page_number/" + result["id"],
                 success: function (res) {
                     var formGroups = document.getElementsByClassName("form-group");
                     for (var i = 0; i < formGroups.length; i++) {
