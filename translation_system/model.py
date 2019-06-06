@@ -13,11 +13,25 @@ from . import app
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-translators_tasks = db.Table("translators_projects",
-                               db.Column("translator_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
-                               db.Column("task_id", db.Integer, db.ForeignKey("task.id"), primary_key=True),
-                               )
+# translators_tasks = db.Table("translators_projects",
+#                                db.Column("translator_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
+#                                db.Column("task_id", db.Integer, db.ForeignKey("task.id"), primary_key=True),
+#                                )
 
+class translators_tasks(db.Model):
+    __tablename__ = 'translators_tasks'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    translator_id = db.Column(db.Integer, nullable=False)
+    task_id =db.Column(db.Integer, nullable=False)
+    task_type = db.Column(db.String(32), nullable=False)
+
+    translator = db.relationship("user", lazy=True)
+    task = db.relationship("task", lazy=True)
+
+    def __init__(self, translator_id, task_id, task_type):
+        self.translator_id = translator_id
+        self.task_id = task_id
+        self.task_type = task_type
 
 class user(db.Model):
     __tablename__ = 'user'
@@ -29,6 +43,9 @@ class user(db.Model):
     role = db.Column(db.Integer, nullable=False, default=0)
     gender = db.Column(db.Boolean, nullable=False, default=True)
     signature = db.Column(db.String(128), nullable=True, default="This guy is too lazy~")
+
+    # tasks = db.relationship("task", secondary=translators_tasks, lazy="subquery")
+    tasks = db.relationship("task", lazy=True)
 
     def __init__(self, email, username, password, role):
         self.email = email
@@ -113,7 +130,8 @@ class task(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     project = db.relationship("project", lazy=True)
 
-    translators = db.relationship("user", secondary=translators_tasks, lazy="subquery")
+    # translators = db.relationship("user", secondary=translators_tasks, lazy="subquery")
+    translators = db.relationship("user", lazy=True)
 
     def __init__(self, project_id, start_page, end_page, task_path):
         self.project_id = project_id
@@ -127,8 +145,10 @@ class book(db.Model):
     file_type = db.Column(db.String(16), nullable=False)
     language = db.Column(db.String(32), nullable=False)
     page_number = db.Column(db.Integer, nullable=False)
-    book_name = db.Column(db.String(256), nullable=False)
-    
+    book_name = db.Column(db.String(256), nullable=False, unique=True)
+    translated_book_name = db.Column(db.String(256), nullable=True, unique=True)
+    translated_page_number = db.Column(db.Integer, nullable=True)
+
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     project = db.relationship("project", lazy=True)
 

@@ -17,12 +17,17 @@
 
 .translate {
     width: 100%;
-    height: 48%;
+    height: 97%;
 }
 
-.submit-button {
+.button-area {
     width: 100%;
     height: 4%;
+}
+
+.save-button, .submit-button {
+    position:absolute;
+    z-index:1
 }
 
 .show-area, .translate-area {

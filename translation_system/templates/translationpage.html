@@ -40,46 +40,56 @@
         
         <div id="show" class="pdfarea" style="display:block">
 <!--            <a class="pdf" href="../../guibas1985.pdf"></a>-->
-            <a id="translationId" class="pdf" href="/files/{{ translationId }}"></a>
+            <a id="translationId" class="pdf">downloading the file</a>
         </div>
         <script>
+            function queryProcess() {
+                $.ajax({
+                    type: "POST",
+                    url: "/query/" + {{tid}},
+                    success: function (res) {
+                        if (res == "false") {
+                            alert("fail to translate file");
+                        } else {
+                            var result = JSON.parse(res);
+                            percent = parseFloat(result["percent"]);
+                            $("#process").innerHTML = "The process of translation is " + result["percent"] + "%";
+                            if (percent < 100) {
+                                setTimeout(queryProcess, 1000);
+                            } else return;
+                        }
+                    },
+                    error: function (res) {
+                        alert("fail to load translation file");
+                    }
+                });
+            }
+            
             var percent = 0;
             if ({{tid}} === -1) {
-                $("#process").style.display = "none";
+                $("#process")[0].style.display = "none";
+                $("#translationId")[0].href = "/files/{{ translationId }}";
+                $("#translationId")[0].innerHTML = "";
             } else {
-                $("#show").style.display = "none";
-                $("#process").style.display = "block";
-                while (percent < 100) {
-                    $.ajax({
-                        type: "POST",
-                        url: "/query/" + {{tid}},
-                        success: function (res) {
-                            if (res == "false") {
-                                alert("fail to translate file");
-                            } else {
-                                var result = JSON.parse(res);
-                                percent = parseFloat(result["percent"]);
-                                $("#process").innerHTML = "The process of translation is " + result["percent"] + "%";
-                            }
-                        },
-                        error: function (res) {
-                            alert("fail to load translation file");
-                        }
-                    });
-                }
+                $("#show")[0].style.display = "none";
+                $("#process")[0].style.display = "block";
+
                 /*var translationId = {{translationId}};
                 var tid = {{tid}};
                 var downloadParams = (translationId.toString(), tid.toString());*/
                 $.ajax({
                     type: "POST",
                     url: "/download_file/{{translationId}}",
-                    data: JSON.stringify({{tid}})
+                    data: JSON.stringify({{tid}}),
                     success: function (res) {
                         if (res == "false") {
                             alert("fail to download translated file");
                         } else {
-                            $("#process").style.display = "none";
-                            $("#show").style.display = "block";
+                            $("#process")[0].style.display = "none";
+                            $("#show")[0].style.display = "block";
+                            $("#translationId")[0].href = "/files/{{ translationId }}";
+                            $("#translationId")[0].innerHTML = "";
+                            location.reload();
                         }
                     },
                     error: function () {

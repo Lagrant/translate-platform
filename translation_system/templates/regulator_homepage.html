@@ -276,8 +276,20 @@
                                                 </div>
                                             </div>
                                             <div class="el-card__body">
-                                                <div>
+                                                <div style="cursor:pointer" onclick="crossChecking(this)">
                                                     Translators
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="el-card is-always-shadow">
+                                            <div class="el-card__header">
+                                                <div class="clearfix">
+                                                    <strong>Inspection</strong>
+                                                </div>
+                                            </div>
+                                            <div class="el-card__body">
+                                                <div style="cursor:pointer" onclick="inspecting(this)">
+                                                    View
                                                 </div>
                                             </div>
                                         </div>
@@ -292,6 +304,27 @@
                                         } else return new Array(a, b);
                                     }
                                     
+                                    function checkAndPush(rangeList, rangeItem) {
+                                        if (rangeList.length == 0) {
+                                            rangeList.push(rangeItem);
+                                            return true;
+                                        }
+                                        for (var i = 0; i < rangeList.length; i++) {
+                                            
+                                            if ((rangeList[i][0] <= rangeItem[0] && rangeList[i][1] >= rangeItem[0]) ||
+                                                (rangeList[i][0] <= rangeItem[1] && rangeList[i][1] >= rangeItem[1]) ||
+                                                (rangeList[i][0] >= rangeItem[0] && rangeList[i][1] <= rangeItem[1])){
+                                                alert("Invalid range");
+                                                return false;
+                                            }
+                                                
+                                            else {
+                                                rangeList.push(rangeItem);
+                                                return true;
+                                            };
+                                        }
+                                    }
+                                    
                                     function customizedRange() {
                                         var selectedRange = new Array();
                                         var crs = document.getElementsByName("custmoized-range");
@@ -303,7 +336,9 @@
                                                 alert("Invalid page range");
                                                 return;
                                             }
-                                            selectedRange.push(swap(leftValue, rightValue));
+//                                            selectedRange.push(swap(leftValue, rightValue));
+                                            if (!checkAndPush(selectedRange, swap(leftValue, rightValue)))
+                                                return false;
                                         }
                                         return selectedRange;
                                     }
@@ -331,6 +366,10 @@
                                     var selectedRange = new Array();
                                     if ($("#customized")[0].style.display == "block") {
                                         selectedRange = customizedRange();
+                                        if (selectedRange == false) {
+                                            taskContent.parentNode.style.display = "none";
+                                            return;
+                                        }
                                     } else if ($("#fixed")[0].style.display == "block") {
                                         selectedRange = fixedRange($("#fixed")[0]);
                                     }
@@ -396,8 +435,15 @@
                                         url: "/get_range_list/" + taskBody.id,
                                         success: function (res) {
                                             rangeList = res;
-                                            var assignments = document.getElementsByClassName("assignments");
+                                            var assignments = document.getElementsByName("sections");
                                             for (var i = 0; i < assignments.length; i++) {
+//                                                assignments[i].options.length = 0;
+                                                $(assignments[i]).find("option:selected").text("");
+                                                $(assignments[i]).empty();
+                                                var noneOpt = document.createElement("option");
+                                                noneOpt.setAttribute("value", "--none--");
+                                                noneOpt.innerHTML = "--none--";
+                                                assignments[i].appendChild(noneOpt);
                                                 for (var j = 0; j < rangeList.length; j++) {
                                                     var opt = document.createElement("option");
                                                     opt.setAttribute("value", rangeList[j].toString());
@@ -413,21 +459,141 @@
                                     
                                 }
                                 
+                                function crossChecking(ob) {
+                                    $("#cross-checking")[0].style.display = "block";
+                                    var taskBody = ob.parentNode.parentNode.parentNode.parentNode.parentNode;
+                                    taskBody.appendChild($("#cross-checking")[0]);
+                                    
+                                    var rangeList;
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/get_range_list/" + taskBody.id,
+                                        success: function (res) {
+                                            rangeList = res;
+                                            var assignments = document.getElementsByName("parts");
+                                            for (var i = 0; i < assignments.length; i++) {
+//                                                assignments[i].options.length = 0;
+                                                $(assignments[i]).find("option:selected").text("");
+                                                $(assignments[i]).empty();
+                                                var noneOpt = document.createElement("option");
+                                                noneOpt.setAttribute("value", "--none--");
+                                                noneOpt.innerHTML = "--none--";
+                                                assignments[i].appendChild(noneOpt);
+                                                for (var j = 0; j < rangeList.length; j++) {
+                                                    var opt = document.createElement("option");
+                                                    opt.setAttribute("value", rangeList[j].toString());
+                                                    opt.innerHTML = rangeList[j].toString();
+                                                    assignments[i].appendChild(opt);
+                                                }
+                                            }
+                                        },
+                                        error: function () {
+                                            alert("fail to get range list");
+                                        }
+                                    });
+                                    
+                                }
+                                
+                                function inspecting(ob) {
+                                    $("#inspection")[0].style.display = "block";
+                                    var taskBody = ob.parentNode.parentNode.parentNode.parentNode.parentNode;
+                                    taskBody.appendChild($("#inspection")[0]);
+                                    
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/get_task_list/" + taskBody.id,
+                                        success: function (res) {
+                                            var result = JSON.parse(res);
+                                            var insp = $("#insp")[0];
+                                            
+                                            for (var i = 0; i < result.length; i++) {
+                                                var trans = document.createElement("div");
+                                                trans.setAttribute("class", "left-bar");
+                                                trans.innerHTML = result["translator"];
+                                                
+                                                var status = document.createElement("div");
+                                                status.setAttribute("class", "medium-bar");
+                                                status.innerHTML = result["status"];
+                                                
+                                                var ahref = document.createElement("a");
+                                                ahref.setAttribute("href", result["view"]);
+                                                ahref.innerHTML = "View";
+                                                var viewAhref = document.createElement("div");
+                                                viewAhref.setAttribute("class", "right-bar");
+                                                viewAhref.appendChild(ahref);
+                                                
+                                                insp.appendChild(trans);
+                                                insp.appendChild(status);
+                                                insp.appendChild(viewAhref);
+                                            }
+                                        }
+                                    });
+                                }
+                                
                                 function postAssignMem(ob) {
                                     var da = ob.parentNode.parentNode.parentNode;
                                     var taskBody = da.parentNode;
                                     
-                                    var memAssigns = $(da).find("select");
-                                    var translator = memAssigns[0].options[memAssigns[0].selectedIndex].value.toString();
-                                    var section = memAssigns[1].options[memAssigns[1].selectedIndex].value.toString();
                                     var t_s = {}
-                                    t_s[translator] = section;
+                                    var ts = document.getElementsByName("translators");
+                                    var ss = document.getElementsByName("sections");
+                                    
+                                    for (var i = 0; i < ts.length; i++) {
+                                        if (ts[i].value === "") {
+                                            alert("translator can't be none");
+                                            da.style.display = "none";
+                                            return;
+                                        }
+                                        if (ss[i].value === "--none--") {
+                                            alert("assignment section can't be none");
+                                            da.style.display = "none";
+                                            return;
+                                        }
+                                        
+                                        t_s[ts[i].value] = ss[i].value;
+                                    }
+                                    var assignType = "assignment";
                                     $.ajax({
                                         type: "POST",
-                                        url: "/translator_setion/" + taskBody.id,
+                                        url: "/translator_task/" + taskBody.id + "+" + assignType,
                                         data: JSON.stringify(t_s),
-                                        error: function () {
-                                            alert("fail to post translators and sections");
+                                        error: function (res, status) {
+                                            alert("fail to post translators and sections\n" + res, status);
+                                        }
+                                    });
+                                    
+                                    da.style.display = "none";
+                                }
+                                
+                                function postCrossChecking(ob) {
+                                    var da = ob.parentNode.parentNode.parentNode;
+                                    var taskBody = da.parentNode;
+                                    
+                                    var t_s = {}
+                                    var ts = document.getElementsByName("checkers");
+                                    var ss = document.getElementsByName("parts");
+                                    
+                                    for (var i = 0; i < ts.length; i++) {
+                                        if (ts[i].value === "") {
+                                            alert("translator can't be none");
+                                            da.style.display = "none";
+                                            return;
+                                        }
+                                        if (ss[i].value === "--none--") {
+                                            alert("assignment section can't be none");
+                                            da.style.display = "none";
+                                            return;
+                                        }
+                                        
+                                        t_s[ts[i].value] = ss[i].value;
+                                    }
+                                    var assignType = "cross_checking";
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/translator_task/" + taskBody.id + "+" + assignType,
+                                        data: JSON.stringify(t_s),
+                                        error: function (res, status) {
+                                            alert("fail to post translators and sections\n" + res, status);
                                         }
                                     });
                                     
@@ -533,19 +699,19 @@
                                     
                                     <div id="distribution" class="task-body">
                                         <div name="group-member">
-<!--
                                             <div class="input-area">
                                                 <span class="new-range" onclick="newRange(this)" style="padding-top:5px;">+</span>
                                             </div>
--->
                                             <div class="input-area">
-                                                <select class="member mem-assign">
+                                                <input type="text" name="translators" class="member mem-assign"></input>
+                                                
+                                                <!--<select class="member mem-assign">
                                                     <option value="--none--">--none--</option>
                                                     <option value="Allen">Allen</option>
-                                                </select>
+                                                </select>-->
                                             </div>
                                             <div class="input-area">
-                                                <select class="assignments mem-assign">
+                                                <select name="sections" class="assignments mem-assign">
                                                     <option value="--none--">--none--</option>
                                                 </select>
                                             </div>
@@ -558,6 +724,79 @@
                                     
                                     <div class="task-settings">
                                         <button id="post-members" class="selection" onclick="postAssignMem(this)">Confirm</button>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <div id="cross-checking" class="task">
+                                <div class="task-content">
+                                    <div class="task-header">
+                                        <span class="close" onclick="closeWindow()">&times;</span>
+                                        <h3>Cross Checking</h3>
+                                    </div>
+                                    
+                                    <div id="cross" class="task-body">
+                                        <div name="group-member">
+                                            <div class="input-area">
+                                                <span class="new-range" onclick="newRange(this)" style="padding-top:5px;">+</span>
+                                            </div>
+                                            <div class="input-area">
+                                                <input type="text" name="checkers" class="member mem-assign"></input>
+                                                
+                                            </div>
+                                            <div class="input-area">
+                                                <select name="parts" class="mem-assign">
+                                                    <option value="--none--">--none--</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-area" name="delete-member">
+                                                <span class="close" onclick="deleteRange(this)" style="padding-top:10px;">&times;</span>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="task-settings">
+                                        <button id="post-checkings" class="selection" onclick="postCrossChecking(this)">Confirm</button>
+                                    </div>
+                                </div>
+                            </div>
+                    
+                            <div id="inspection" class="task">
+                                <div class="task-content">
+                                    <div class="task-header">
+                                        <span class="close" onclick="closeWindow()">&times;</span>
+                                        <h3>Inspect Assignments</h3>
+                                    </div>
+                                    <div class="task-body">
+                                        <div class="left-bar">
+                                            Name
+                                        </div>
+                                        <div class="medium-bar">
+                                            Status
+                                        </div>
+                                        <div class="right-bar">
+                                            View
+                                        </div>
+                                    </div>
+<!--
+                                    <div id="insp" class="task-body">
+                                            
+                                        <div class="left-bar">
+                                            allen
+                                        </div>
+                                        <div class="medium-bar">
+                                            accepted
+                                        </div>
+                                        <div class="right-bar">
+                                            <a>view</a>
+                                        </div>
+                                        
+                                    </div>
+-->
+                                    
+                                    <div class="task-settings">
+                                        <button class="selection">Confirm</button>
                                     </div>
                                 </div>
                             </div>

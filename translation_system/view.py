@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import csv
 import os
+import re
 from io import StringIO
 import sys
 from .util import ListConverter
@@ -22,18 +23,19 @@ from xlrd import open_workbook
 from .model import user, login, mailconfirm, db, book, task, project, translators_tasks
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfFileReader, PdfFileWriter
+from docx import Document
 from . import app
 from .SQLEncoder import AlchemyEncoder
 from .miner import parse
 from .ahocorasick import AhoCorasick
 from .fanyigou import upload_to_fanyigou, query_process, download_file
+# from .txt2pdf import *
 
 log = app.logger
 
 #book_list should have been unique to each account, but now, simply set
 #a globle variable and remains modifying in the future
 
-n_t_s = {}
 
 @app.route('/')
 @app.route('/index')
@@ -78,8 +80,9 @@ def login_pass():
             print(session.get("last_page"))
             page = session.get("last_page")
             return page
-        else:
+        elif theuser.role == 1:
             return '/'
+        else: return '/translator'
 
 
 @app.route('/login/pass/name/', methods=['GET', 'POST'])
@@ -149,21 +152,7 @@ def login_signup():
     if os.path.isdir(cur_dir):
         os.makedirs('./data/user/' + email)
         cur_dir = cur_dir + "/" + email
-        """
-        print(cur_dir, "/img")
-        os.makedirs(cur_dir + "/img")
-        os.makedirs(cur_dir + "/code")
-        os.makedirs(cur_dir + "/report")
-        os.makedirs(cur_dir + "/data")
-        cur_dir = cur_dir + "/code"
-        os.makedirs(cur_dir + "/Clean")
-        os.makedirs(cur_dir + "/Statistic")
-        os.makedirs(cur_dir + "/Mining")
-        os.makedirs(cur_dir + "/Visualiztion")
-        srcfile = 'static/user/service/img/user_img.jpg'
-        dstfiel = 'static/user/' + email + '/img/user_img.jpg'
-        mycopyfile(srcfile, dstfiel)
-        """
+        
     else:
         return "error"
     verify = data['verify']
@@ -310,7 +299,7 @@ def products():
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         return render_template('products.html', user=user1)
     else:
@@ -322,7 +311,7 @@ def contact_us():
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         return render_template('contact_us.html', user=user1)
     else:
@@ -334,7 +323,7 @@ def about_us():
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         return render_template('about_us.html', user=user1)
     else:
@@ -347,7 +336,7 @@ def whether_login():
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
         log.info("user role is %s", user1.role)
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         return "true"
     return "false"
@@ -357,7 +346,7 @@ def upload_file(filename):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         if request.method == 'POST':
             if 'file' not in request.files:
@@ -391,7 +380,7 @@ def upload_file(filename):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         if request.method == 'POST':
             return
@@ -406,13 +395,13 @@ def get_page_num(projectID):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
-
-        current_book = book.query.filter_by(project_id=projectID).first()
-        page_number = current_book.page_number
-        log.info(page_number)
-        return jsonify(page_number)
+        if request.method == 'POST':
+            current_book = book.query.filter_by(project_id=projectID).first()
+            page_number = current_book.translated_page_number
+            log.info("page number %s", page_number)
+            return jsonify(page_number)
     else:
         return "false" 
 
@@ -421,7 +410,7 @@ def set_setting_list():
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         if request.method == 'POST':
             setting_list = json.loads(request.get_data())
@@ -447,15 +436,29 @@ def get_setting_list():
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role is None:
             return "404 NOT FOUND"
-        
-        item_list = project.query.all()
-        item_list_dict = []
-        for i_list in item_list:
-            item_list_dict.append(json.dumps(i_list, cls = AlchemyEncoder))
-            
-        return jsonify(item_list_dict)
+        if request.method == 'POST':
+            if user1.role == 1:
+                # 当user为manager时，从project中查找项目
+                item_list = project.query.filter_by(manager_id=user1.id).all()
+                item_list_dict = []
+                for i_list in item_list:
+                    item_list_dict.append(json.dumps(i_list, cls = AlchemyEncoder))
+                return jsonify(item_list_dict)
+            else:
+                # 当user为translator时，从task中查找项目
+                item_list = task.query.filter_by(translators=user).all()
+                item_list_dict = []
+                for i_list in item_list:
+                    assign_type =translators_tasks.query.filter_by(translator_id=user1.id, task_id=i_list.id).first().task_type
+                    item = {}
+                    i_proj = i_list.project
+                    item['name'] = i_proj.name
+                    item['type'] = assign_type
+                    item['deadline'] = i_proj.deadline
+                    item_list_dict.append(item)
+                return jsonify(item_list_dict)
     else:
         return "false"
 
@@ -464,12 +467,11 @@ def get_setting_item(name):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role is None:
             return "false"
-        
-        item = project.query.filter_by(name = name).first()
-
-        return json.dumps(item, cls = AlchemyEncoder)
+        if request.method == 'POST':
+            item = project.query.filter_by(name = name).first()
+            return json.dumps(item, cls = AlchemyEncoder)
     else:
         return "false"
 
@@ -478,24 +480,28 @@ def segment_file(name):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         if request.method == 'POST':
-            
             select_range = json.loads(request.get_data())
+
             current_project = project.query.filter_by(name=name).first()
             current_project_id = current_project.id
+
             current_book = book.query.filter_by(project_id=current_project_id).first()
-            current_book_name = current_book.book_name
+            current_book_name = current_book.translated_book_name
+
+            # 上线以后写个try，防止pypdf2编码报错
             out_files = split(current_book_name, select_range)
             for i in range(len(select_range)):
+                parse(out_files[i])
                 temp = list(map(int, select_range[i]))
                 start_page = temp[0] - 1
                 end_page = temp[1] - 1
-                
+
                 task1 = task(project_id=current_project_id, start_page=start_page, end_page=end_page, task_path=out_files[i])
                 db.session.add(task1)
-                db.commit()
+                db.session.commit()
 
             return Response("Successfully segment the file", status=200)
     else:
@@ -506,7 +512,7 @@ def replace_terms(name):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         if request.method == 'POST':
             l_d = json.loads(request.get_data())
@@ -581,7 +587,7 @@ def get_range_list(name):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         if request.method == 'POST':
             range_list = []
@@ -592,42 +598,73 @@ def get_range_list(name):
                 range_list.append(range_list_item)
             
             return jsonify(range_list)
-
-            
     else:
         return "false"
 
-@app.route('/translator_setion/<string:name>', methods=['POST','GET'])
-def translator_setion(name):
-    if request.method == 'POST':
-        global n_t_s
+@app.route('/translator_task/<list:ids>', methods=['POST','GET'])
+def translator_setion(ids):
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1.role != 1:
+            return "false"
+        if request.method == 'POST':
 
-        t_s = json.loads(request.get_data())
-        n_t_s[name] = t_s
-        log.info('n_t_s = %s', n_t_s)
-        return Response('Successfully adds translators and sections', status=200)
+            name = ids[0]
+            assign_type = ids[1]
+            t_s = json.loads(request.get_data()) #t_s: translator & task
 
-@app.route('/get_translator_setion_file/<string:name>', methods=['POST','GET'])
-def get_t_s_file(name):
-    if request.method == 'POST':
-        global n_t_s
-        global out_files_list
+            sections = list(t_s.values())
+            translators = list(t_s.keys())
+            current_project = project.query.filter_by(name=name).first()
+            for i in range(0,len(t_s)):
+                spage = int(sections[i].split(",")[0]) - 1
+                epage = int(sections[i].split(",")[1]) - 1
+                cur_task = task.query.filter_by(project_id=current_project.id, 
+                    start_page=spage, end_page=epage).first()
+                if cur_task is None:
+                    return Response('Task not found ' + sections[i], status=404)
+                log.info("current task id %s", cur_task.id)
+                translator = user.query.filter_by(username=translators[i]).first()
+                if translator is None:
+                    return Response('Translator not found ' + translators[i], status=404)
+                log.info("current translator %s", translator.role)
+                if translator.role != 0:
+                    return Response('Invalide translator role', status=404)
+                
+                # cur_task.translators.append(translator)
+                # translator.tasks.append(cur_task)
+                translators_tasks1 = translators_tasks(translator.id, cur_task.id, assign_type)
+                db.session.add(translators_tasks1)
+                db.session.add(cur_task)
+                db.session.add(translator)
+                db.session.commit()
+
+            return Response('Successfully adds translators and sections', status=200)
+    else: return "false"
+
+# @app.route('/get_translator_task_file/<string:name>', methods=['POST','GET'])
+# def get_t_s_file(name):
+    
+#     if request.method == 'POST':
         
-        translator = json.loads(request.get_data())
-        t_s = n_t_s[name]
-        section = t_s[translator]
-        filename = out_files_list[section]
-        return jsonify(filename)
+        
+#         translator = json.loads(request.get_data())
+#         t_s = n_t_s[name]
+#         section = t_s[translator]
+#         filename = out_files_list[section]
+#         return jsonify(filename)
 
 @app.route("/files/<path:path>", methods=['POST','GET'])
 def send_source_file(path):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role is None:
             return "false"
         return send_file("../"+path)
     else: return "false"
+
 
 @app.route('/translation/<list:ids>', methods=['POST','GET'])
 def toTranslationPage(ids):
@@ -637,17 +674,38 @@ def toTranslationPage(ids):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role is None:
             return "false"
-        log.info("ids0 = %s", ids[0])
-        log.info("ids1 = %s", ids[1])
         current_project = project.query.filter_by(name=ids[0]).first()
-        log.info(current_project.name)
         current_book = book.query.filter_by(project_id=current_project.id).first()
         projId = current_book.book_name
-        translationId = "./data/user/" + email + "/" + current_project.name + "/" + ids[1]
+        manager = current_project.manager
+        log.info("email %s", manager.email)
+        log.info("project url is %s", projId)
+        term_book = projId[0: projId.rindex(".")] + "_term.txt"
+
+        #把*_term.txt文件转为*_term.docx文件，然后上传翻译狗
+        # docx_term_book = projId[0: projId.rindex(".")] + "_term.docx"
+        # document = Document()
+        # myfile = open(term_book, "rb").read()
+        # myfile=myfile.decode("utf-8","xmlcharrefreplace")
+        # #myfile = re.sub(r'[^\x00-\x7F]+|\x0c',' ', myfile) # remove all non-XML-compatible characters
+        # with open("./data/hehe.txt","w") as f:
+        #     f.write(myfile)
+        # p = document.add_paragraph(myfile)
+        # document.save(docx_term_book)
+        # myfile.close()
+        pdf_term_book = projId[0: projId.rindex(".")] + "_term.pdf"
+        # PDFCreator(term_book)
+
+
+        translationId = "./data/user/" + manager.email + "/" + current_project.name + "/" + ids[1]
+        current_book.translated_book_name = translationId
+        db.session.add(current_book)
+        db.session.commit()
         if not os.path.isfile(translationId):
-            tid = upload_to_fanyigou(book, current_project.id, current_project.from_language, current_project.to_language)
+            # 变量要改成 docx_term_book
+            tid = upload_to_fanyigou(current_book_name=pdf_term_book, source_language=current_project.from_language, target_language=current_project.to_language)
 
             if tid == False:
                 return "false"
@@ -662,11 +720,12 @@ def query(tid):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         if request.method == 'POST':
             #查询翻译进度
             process_data = query_process(tid)
+            log.info("process_data %s", process_data)
             if process_data == False:
                 return "false"
             return jsonify(process_data)
@@ -677,24 +736,102 @@ def download(path):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1 is None:
+        if user1.role != 1:
             return "false"
         if request.method == 'POST':
             #下载翻译结果
             # ids[0] = cur_dir, ids[1] = tid
             tid = json.loads(request.get_data())
-            feed_back = download_file("../"+path,tid)
-            return feed_back
+            if os.path.isfile("../"+path):
+                return "true"
+            log.info("path %s", path)
+            feed_back = download_file("./"+path,tid)
+            # feed_back = True
+            if feed_back:
+                #更新book表单
+                current_book = book.query.filter_by(translated_book_name="./"+path).first()
+                pdf_reader = PdfFileReader("./"+path)
+                page_num = pdf_reader.getNumPages()
+                current_book.translated_page_number = page_num
+                db.session.add(current_book)
+                db.session.commit()
+                return "true"
+            else: return "false"
     else: return "false"
+
+@app.route('/get_task_list/<name>', methods=['POST','GET'])
+def get_task_list(name):
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1.role != 1:
+            return "false"
+        if request.method == 'POST':
+            task_item = {}
+            task_item_list = []
+
+            cur_proj = project.query.filter_by(name=name).first()
+            tasks = task.query.filter_by(project_id=cur_proj.id).all()
+            for cur_task in tasks:
+                trans_tasks = translators_tasks.query.filter_by(task_id=cur_task.id).all()
+                for tran_task in trans_tasks:
+                    task_item["translator"] = tran_task.translator.username
+                    task_item[]
+                task_list["translator"] = cur_task.translators[0].username
+                task_list["status"] = "unavailable"
+                task_list["view"] = "/work/" + name + "+" + task_list["translator"]
+            return jsonify(task_list)
+
+        else: return "fasle"
 
 @app.route('/translator', methods=['POST','GET'])
 def toTranslatorPage():
-    return render_template('translator_homepage.html')
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1.role != 0:
+            return "false"
+        else: return render_template('translator_homepage.html', user=user1)
+    else: return "false"
 
-@app.route('/work/<string:filename>', methods=['POST','GET'])
-def work_zone(filename):
-    translation_path_file = '../static/uploads/'
-    translation_fname = secure_filename(filename)
-    log.info('translation_path_file = %s', translation_path_file)
-    log.info('translation_fname = %s', translation_fname)
-    return render_template('workingpage.html', translationId = translation_path_file + translation_fname)
+@app.route('/work/<list:ids>', methods=['POST','GET'])
+def work_zone(ids):
+    # translation_path_file = '../static/uploads/'
+    # translation_fname = secure_filename(filename)
+    # log.info('translation_path_file = %s', translation_path_file)
+    # log.info('translation_fname = %s', translation_fname)
+    # return render_template('workingpage.html', translationId = translation_path_file + translation_fname)
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1.role != 0:
+            return "false"
+        
+        name = ids[0]
+        current_project = project.query.filter_by(name=name).first()
+        cur_task = task.query.filter_by(project_id=current_project.id).first()
+        source_path = cur_task.task_path
+        target_path = source_path[0: source_path.rindex(".")] + ".txt"
+        if not os.path.exists(source_path):
+            return "No source file"
+        if not os.path.exists(target_path):
+            return "No target file"
+        htmlContent = ""
+        with open(target_path, 'r') as f:
+            htmlContent = f.read()
+        return render_template('workingpage.html', translationId = source_path,
+            htmlContent = htmlContent, targetPath=target_path)
+
+@app.route('/save_text/<path:path>', methods=['POST','GET'])
+def save_text(path):
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1.role != 0:
+            return "false"
+        if request.method == 'POST':
+            html_content = json.loads(request.get_data())
+            with open("./"+path, "w") as f:
+                f.write(html_content)
+            return "true"
+    else: return "false"

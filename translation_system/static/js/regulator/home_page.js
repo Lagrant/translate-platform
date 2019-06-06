@@ -156,6 +156,9 @@ function drawAssignItems(result) {
     }*/
     items.push(drawAssignDetails(result['name']));
 //    items.push(drawAssignDetails(result['group']));
+    if (result['type'] !== undefined) {
+        items.push(drawAssignDetails(result['type']));
+    }
     items.push(drawAssignDetails(result['deadline']));
 
     var titles = $('<tr></tr>');

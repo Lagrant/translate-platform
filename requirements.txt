@@ -6,3 +6,7 @@ Flask
 xlrd
 SQLAlchemy
 Flask-Migrate
+chardet
+pdfminer3k
+requests
+python-docx

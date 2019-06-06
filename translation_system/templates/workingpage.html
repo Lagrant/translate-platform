@@ -12,7 +12,10 @@
         <link rel="stylesheet" href="../static/css/ui/workingpage.css">
         <script src="../static/js/bootstrap/jquery-1.9.0.min.js"></script>
         <script src="../static/js/bootstrap/jquery.media.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js"></script>
+<!--        <script type="text/javascript" src="../static/kindeditor/plugins/jme/dialogs/jquery-1.11.0.min.js"></script>-->
+        <script type="text/javascript" src="../static/kindeditor/kindeditor-all.js"></script>
+        <script type="text/javascript" src="../static/kindeditor/lang/zh-CN.js"></script>
+        <script type="text/javascript" src="../static/kindeditor/plugins/code/prettify.js"></script>
         
         <style>
             blockquote {
@@ -23,7 +26,7 @@
                 color:#D34B62;
                 background: #F9F2F4;
             }
-            #submit {
+            #save, #submit {
                 float: right;
                 width: 70px;
                 height: 30px;
@@ -34,7 +37,7 @@
                 outline: none;
             }
             
-            #submit:hover {
+            #save:hover, #submit:hover {
                 background-color: #999999;
             }
         </style>
@@ -43,23 +46,19 @@
     
     <body>
         <div id="preview" class="pdfarea">
-            <a class="pdf" href="{{ translationId }}"></a>
+            <a class="pdf" href="/files/{{ translationId }}"></a>
         </div>
         
         <div class="editarea">
-            
             <div id="edit" class="translate">
-                <textarea id="translate-content" class="translate-area" wrap="virtual" oninput="compile()" spellcheck="true"></textarea>
-            </div>
-            
-            <div id="compile" class="translate">
-                <div id="show-content" class="show-area">
+                <textarea id="translate-content1" class="translate-area" name="zone" spellcheck="true">{{htmlContent}}</textarea>
+                <div class="button-area">
+                    <button id="save" onclick="saveText()" class="save-button">save</button>
+                    <button id="submit" onclick="submitText()" class="submit-button">submit</button>
                 </div>
-            </div>
+            </div>            
             
-            <div class="submit-button">
-                <button id="submit" onclick="saveText()">submit</button>
-            </div>
+
             
         </div>
         <script>
@@ -67,17 +66,42 @@
         </script>
         
         <script>
-            function compile(){
-                var text = document.getElementById("translate-content").value;
-                var converter = new showdown.Converter({emoji: true, simpleLineBreaks: true});
-                var html = converter.makeHtml(text);
-                document.getElementById("show-content").innerHTML = html;
-            }
+            var htmlText = "";
+            
+            KindEditor.ready(function(K) {
+                var editor1 = K.create('textarea[name="zone"]', {
+                    cssPath : '../static/kindeditor/plugins/code/prettify.css',
+                    uploadJson : '../static/kindeditor/jsp/upload_json.jsp',
+                    fileManagerJson : '../static/kindeditor/jsp/file_manager_json.jsp',
+                    allowFileManager : true,
+                    autoHeightMode : false,
+                    afterCreate : function() {
+                        var self = this;
+                        K.ctrl(document, 13, function() {
+                            self.sync();
+                            document.forms['example'].submit();
+                        });
+                        K.ctrl(self.edit.doc, 13, function() {
+                            self.sync();
+                            document.forms['example'].submit();
+                        });
+                    }
+                });
+                prettyPrint();
+            });
         </script>
         
         <script>
             function saveText() {
-                
+                htmlText = $(document.getElementsByTagName("iframe")[1].contentWindow.document.body).html();
+                $.ajax({
+                    type: 'POST',
+                    url: '/save_text/' + "{{targetPath}}",
+                    data: JSON.stringify(htmlText),
+                    error: function () {
+                        alert("fail to save file");
+                    }
+                });
             }
         </script>
     </body>

@@ -108,6 +108,21 @@
 /*    border-right: 1px solid #b4b4b4;*/
 }
 
+.left-bar {
+    margin-left: 75px;
+    display: inline;
+}
+
+.medium-bar {
+    margin-left: 75px;
+    display: inline;
+}
+
+.right-bar {
+    margin-left: 75px;
+    display: inline;
+}
+
 .form-group {
     height: 30px;
     width: 150px;
@@ -138,4 +153,5 @@
     height: 40px;
     font-size: 30px;
     margin-left: 80px;
+    width: 30%;
 }

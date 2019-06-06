@@ -27,7 +27,7 @@ def generate_token(dict_to_Send, parameter_list):
 
     return token
 
-def upload_to_fanyigou(book, project_id, source_language, target_language):
+def upload_to_fanyigou(current_book_name, source_language, target_language):
     nonce_str = ''.join(random.sample(string.ascii_letters + string.digits, 16))
     dict_to_Send = {}
     dict_to_Send["appid"] = appid
@@ -35,8 +35,6 @@ def upload_to_fanyigou(book, project_id, source_language, target_language):
     dict_to_Send["from"] = source_language
     dict_to_Send["to"] = target_language
     dict_to_Send["privatekey"] = privatekey
-    current_book = book.query.filter_by(project_id=project_id).first()
-    current_book_name = current_book.book_name
     dict_to_Send["md5"] = generate_md5(current_book_name)
     parameter_list = ["appid", "nonce_str", "from", "to", "md5", "privatekey"]
     token = generate_token(dict_to_Send, parameter_list)
@@ -88,8 +86,9 @@ def download_file(cur_dir, tid):
     dict_to_Send["token"] = token
     #修改文件名，将文件下载入特定文件夹
     res = requests.post("https://www.fanyigou.com/TranslateApi/api/downloadFile",
-        json=dict_to_Send)
-    if res.headers["Content-Type"] == "application/octet-stream":
+        params=dict_to_Send)
+    log.info(res.headers)
+    if res.headers["Content-Type"].find("application/octet-stream") != -1:
         with open(cur_dir, "wb") as f:
             f.write(res.content)
         return True
