@@ -36,12 +36,7 @@ from .miner import parse
 from .ahocorasick import AhoCorasick
 from .fanyigou import upload_to_fanyigou, query_process, download_file
 
-
 log = app.logger
-
-#book_list should have been unique to each account, but now, simply set
-#a globle variable and remains modifying in the future
-
 
 @app.route('/')
 @app.route('/index')
@@ -960,7 +955,7 @@ def export_project(name):
         path_page = sorted(path_page, key=lambda x: x[1])
         
         cur_file_name = name + '.docx'
-        cur_file = './data/downloads/' + name + '/'
+        cur_file = './data/user/' + email + '/' + name +'/'
         cur_file = os.path.abspath(cur_file)
         if not os.path.exists(cur_file):
             os.makedirs(cur_file)
