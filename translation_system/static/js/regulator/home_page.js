@@ -55,19 +55,19 @@ function newTaskSettings(ob) {
     }
 //    settingList["foreignBook"] = $(foreignBook).val();
     
-    var ddl = settingListElements[2].children[0];
+    var ddl = settingListElements[3].children[0];
     if ($(ddl).val() === "") {
         alert("Deadline must not be empty");
         return;
     }
     settingList["ddl"] = $(ddl).val();
     
-   /* var group = settingListElements[2].children[0];
-    if (group.options[group.selectedIndex].value === "--none--") {
+    var language = settingListElements[2].children[0];
+    if (language.options[language.selectedIndex].value === "--none--") {
         alert("Group must not be empty");
         return;
     }
-    settingList["group"] = group.options[group.selectedIndex].value;*/
+    settingList["language"] = language.options[language.selectedIndex].value;
     
     var projName = settingListElements[0].children[0];
     if ($(projName).val() === "") {
@@ -144,33 +144,29 @@ function drawAssignItems(result) {
                 </div>\n\
             </td>');
 
-    var progress = $('<td rowspan="1" colspan="2">\n\
-                <div class="cell">\n\
-                    100%\n\
-                </div>\n\
-            </td>');
-
     var items = new Array();
     /*for (item in result) {
         items.push(drawAssignDetails(result[item]));
     }*/
     items.push(drawAssignDetails(result['name']));
-//    items.push(drawAssignDetails(result['group']));
+
     if (result['type'] !== undefined) {
         items.push(drawAssignDetails(result['type']));
     }
     items.push(drawAssignDetails(result['deadline']));
-
+    items.push(drawAssignDetails(result['progress']));
     var titles = $('<tr></tr>');
     titles.append(iconSettings);
     for (var i = 0; i < items.length; i++) {
         titles.append(items[i]);
     }
-    titles.append(progress);
     var taskBody = $('<tbody></tbody>');
     taskBody.attr('id', result['name']);
+    if (result['taskId'] !== undefined) {
+        taskBody.attr('name', result['taskId']);
+    }
+    
     taskBody.append(titles);
-
     $("#task-content").append(taskBody);
 }
 

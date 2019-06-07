@@ -18,18 +18,24 @@ from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pymysql
-from flask import Flask, request, json, render_template, session, jsonify, url_for, current_app, g, redirect, Response, flash, send_file
+from flask import Flask, request, json, render_template, session, jsonify, url_for, current_app, g, redirect, Response, flash, send_file, make_response, send_from_directory
 from xlrd import open_workbook
 from .model import user, login, mailconfirm, db, book, task, project, translators_tasks
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfFileReader, PdfFileWriter
 from docx import Document
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
+import reportlab.pdfbase.ttfonts
+reportlab.pdfbase.pdfmetrics.registerFont(reportlab.pdfbase.ttfonts.TTFont('SimSun', 'SimSun.ttf'))
 from . import app
 from .SQLEncoder import AlchemyEncoder
 from .miner import parse
 from .ahocorasick import AhoCorasick
 from .fanyigou import upload_to_fanyigou, query_process, download_file
-# from .txt2pdf import *
+
 
 log = app.logger
 
@@ -364,9 +370,18 @@ def upload_file(filename):
             f.save(path_file_name)
 
             file_type = fname.split(".")[-1]
-            language = "en"
+            language = current_project.from_language
             
-            parse(path_file_name)
+            try:
+                parse(path_file_name)
+            except Exception as e:
+                log_path = './error/'
+                if not os.path.exists(log_path):
+                    os.makedirs(log_path)
+                with open(os.path.join(log_path, 'pdfminer.log'), 'a') as f:
+                    f.write(e)
+                return "fail to convert pdf to txt file"
+            
             pdf_reader = PdfFileReader(path_file_name)
             page_num = pdf_reader.getNumPages()
             
@@ -374,6 +389,8 @@ def upload_file(filename):
             db.session.add(book1)
             db.session.commit()
             return Response('Uploaded file successfully', status=200)
+        else:
+            return "false"
     else:
         return "false"
     '''
@@ -420,7 +437,7 @@ def set_setting_list():
             if not os.path.exists(cur_dir):
                 os.makedirs(cur_dir)
             project1 = project(name = setting_list["name"], manager_id = user1.id, deadline = setting_list["ddl"],
-             href = setting_list["href"], from_language = "en")
+             href = setting_list["href"], from_language = setting_list["language"])
             db.session.add(project1)
             db.session.commit()
 
@@ -430,6 +447,17 @@ def set_setting_list():
             return jsonify(response_list)
     else:
         return "false"
+
+def compute_progress(proj_id):
+    all_tasks = task.query.filter_by(project_id=proj_id).all()
+    finished_task = 0
+    total_task = 0
+    for single_task in all_tasks:
+        total_task += translators_tasks.query.filter_by(task_id=single_task.id).count()
+        finished_task += translators_tasks.query.filter_by(task_id=single_task.id, task_type="finished").count()
+    rate = int(finished_task / total_task * 100)
+    progress = str(rate) + "%"
+    return progress
 
 @app.route('/get_setting_list', methods=['POST','GET'])
 def get_setting_list():
@@ -444,21 +472,30 @@ def get_setting_list():
                 item_list = project.query.filter_by(manager_id=user1.id).all()
                 item_list_dict = []
                 for i_list in item_list:
+                    cur_progress = compute_progress(i_list.id)
+                    i_list.progress = cur_progress
+                    db.session.add(i_list)
+                    db.session.commit()
                     item_list_dict.append(json.dumps(i_list, cls = AlchemyEncoder))
                 return jsonify(item_list_dict)
             else:
                 # 当user为translator时，从task中查找项目
-                item_list = task.query.filter_by(translators=user).all()
+                # item_list = task.query.filter_by(translators=user1).all()
+                item_list = user1.tasks
                 item_list_dict = []
                 for i_list in item_list:
-                    assign_type =translators_tasks.query.filter_by(translator_id=user1.id, task_id=i_list.id).first().task_type
+                    cur_task = task.query.filter_by(id=i_list.task_id).first()
                     item = {}
-                    i_proj = i_list.project
+                    i_proj = project.query.filter_by(id=cur_task.project_id).first()
                     item['name'] = i_proj.name
-                    item['type'] = assign_type
+                    item['type'] = i_list.task_type
                     item['deadline'] = i_proj.deadline
+                    item['taskId'] = cur_task.id
+                    item['progress'] = 0
                     item_list_dict.append(item)
                 return jsonify(item_list_dict)
+        else:
+            return "false"
     else:
         return "false"
 
@@ -472,6 +509,8 @@ def get_setting_item(name):
         if request.method == 'POST':
             item = project.query.filter_by(name = name).first()
             return json.dumps(item, cls = AlchemyEncoder)
+        else:
+            return "false"
     else:
         return "false"
 
@@ -492,7 +531,16 @@ def segment_file(name):
             current_book_name = current_book.translated_book_name
 
             # 上线以后写个try，防止pypdf2编码报错
-            out_files = split(current_book_name, select_range)
+            try:
+                out_files = split(current_book_name, select_range)
+            except Exception as e:
+                log_path = './error/'
+                if not os.path.exists(log_path):
+                    os.makedirs(log_path)
+                with open(os.path.join(log_path, 'pypdf2.log'), 'a') as f:
+                    f.write(e)
+                return "fail to segment file"
+
             for i in range(len(select_range)):
                 parse(out_files[i])
                 temp = list(map(int, select_range[i]))
@@ -504,6 +552,8 @@ def segment_file(name):
                 db.session.commit()
 
             return Response("Successfully segment the file", status=200)
+        else:
+            return "false"
     else:
         return "false"
         
@@ -526,9 +576,15 @@ def replace_terms(name):
             source_language = current_book.language
             text_current_book_name = current_book_name[0: current_book_name.rindex(".")] + ".txt"
             term_current_book_name = current_book_name[0: current_book_name.rindex(".")] + "_term.txt"
+            db.session.add(current_project)
+            db.session.commit()
 
             target_language_index = {}
             source_language_string = []
+
+            if not os.path.exists("./terms/wording-cn-jp.csv"):
+                # return Response(data=json.dumps({'false': "term file not found"}), mimetype='application/json', status=404)
+                return "term file not found"
 
             with open("./terms/wording-cn-jp.csv", "r") as f:
                 line = f.readline()
@@ -550,6 +606,9 @@ def replace_terms(name):
                         target_language_index[source_language_string[-1]] = words[2]
                     
                     line = f.readline()
+            
+            if not os.path.exists(text_current_book_name):
+                return "fail to convert pdf to txt file"
             
             with open(text_current_book_name, "r") as f:
                 
@@ -598,6 +657,8 @@ def get_range_list(name):
                 range_list.append(range_list_item)
             
             return jsonify(range_list)
+        else:
+            return "false"
     else:
         return "false"
 
@@ -624,11 +685,9 @@ def translator_setion(ids):
                     start_page=spage, end_page=epage).first()
                 if cur_task is None:
                     return Response('Task not found ' + sections[i], status=404)
-                log.info("current task id %s", cur_task.id)
                 translator = user.query.filter_by(username=translators[i]).first()
                 if translator is None:
                     return Response('Translator not found ' + translators[i], status=404)
-                log.info("current translator %s", translator.role)
                 if translator.role != 0:
                     return Response('Invalide translator role', status=404)
                 
@@ -641,7 +700,10 @@ def translator_setion(ids):
                 db.session.commit()
 
             return Response('Successfully adds translators and sections', status=200)
-    else: return "false"
+        else:
+            return "false"
+    else: 
+        return "false"
 
 # @app.route('/get_translator_task_file/<string:name>', methods=['POST','GET'])
 # def get_t_s_file(name):
@@ -663,7 +725,8 @@ def send_source_file(path):
         if user1.role is None:
             return "false"
         return send_file("../"+path)
-    else: return "false"
+    else: 
+        return "false"
 
 
 @app.route('/translation/<list:ids>', methods=['POST','GET'])
@@ -680,24 +743,39 @@ def toTranslationPage(ids):
         current_book = book.query.filter_by(project_id=current_project.id).first()
         projId = current_book.book_name
         manager = current_project.manager
-        log.info("email %s", manager.email)
-        log.info("project url is %s", projId)
         term_book = projId[0: projId.rindex(".")] + "_term.txt"
 
         #把*_term.txt文件转为*_term.docx文件，然后上传翻译狗
         # docx_term_book = projId[0: projId.rindex(".")] + "_term.docx"
         # document = Document()
         # myfile = open(term_book, "rb").read()
-        # myfile=myfile.decode("utf-8","xmlcharrefreplace")
+        # myfile=myfile.decode("utf-8","ignore")
         # #myfile = re.sub(r'[^\x00-\x7F]+|\x0c',' ', myfile) # remove all non-XML-compatible characters
-        # with open("./data/hehe.txt","w") as f:
-        #     f.write(myfile)
         # p = document.add_paragraph(myfile)
         # document.save(docx_term_book)
         # myfile.close()
+
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(fontName='SimSun', name='Song', leading=20, fontSize=12))
+        styleN = styles['Song']
+        story = []
         pdf_term_book = projId[0: projId.rindex(".")] + "_term.pdf"
         # PDFCreator(term_book)
+        doc = SimpleDocTemplate(
+            pdf_term_book,
+            pagesize=letter,
+            bottomMargin=.4 * inch,
+            topMargin=.6 * inch,
+            rightMargin=.8 * inch,
+            leftMargin=.8 * inch)
+        with open(term_book, "r") as f:
+            text_content = f.read()
+        P = Paragraph(text_content, styleN)
+        story.append(P)
 
+        doc.build(
+            story,
+        )
 
         translationId = "./data/user/" + manager.email + "/" + current_project.name + "/" + ids[1]
         current_book.translated_book_name = translationId
@@ -729,7 +807,10 @@ def query(tid):
             if process_data == False:
                 return "false"
             return jsonify(process_data)
-    else: return "false"    
+        else:
+            return "false"
+    else: 
+        return "false"    
 
 @app.route('/download_file/<path:path>', methods=['POST','GET'])
 def download(path):
@@ -744,7 +825,6 @@ def download(path):
             tid = json.loads(request.get_data())
             if os.path.isfile("../"+path):
                 return "true"
-            log.info("path %s", path)
             feed_back = download_file("./"+path,tid)
             # feed_back = True
             if feed_back:
@@ -756,8 +836,12 @@ def download(path):
                 db.session.add(current_book)
                 db.session.commit()
                 return "true"
-            else: return "false"
-    else: return "false"
+            else: 
+                return "false"
+        else:
+            return "false"
+    else: 
+        return "false"
 
 @app.route('/get_task_list/<name>', methods=['POST','GET'])
 def get_task_list(name):
@@ -767,22 +851,24 @@ def get_task_list(name):
         if user1.role != 1:
             return "false"
         if request.method == 'POST':
-            task_item = {}
+            
             task_item_list = []
-
             cur_proj = project.query.filter_by(name=name).first()
             tasks = task.query.filter_by(project_id=cur_proj.id).all()
             for cur_task in tasks:
                 trans_tasks = translators_tasks.query.filter_by(task_id=cur_task.id).all()
                 for tran_task in trans_tasks:
+                    task_item = {}
                     task_item["translator"] = tran_task.translator.username
-                    task_item[]
-                task_list["translator"] = cur_task.translators[0].username
-                task_list["status"] = "unavailable"
-                task_list["view"] = "/work/" + name + "+" + task_list["translator"]
-            return jsonify(task_list)
+                    task_item["status"] = tran_task.task_type
+                    task_item["view"] = "/work/" + cur_proj.name + "+" + str(tran_task.task_id)
+                    task_item_list.append(task_item)
+            return jsonify(task_item_list)
 
-        else: return "fasle"
+        else: 
+            return "fasle"
+    else:
+        return "false"
 
 @app.route('/translator', methods=['POST','GET'])
 def toTranslatorPage():
@@ -791,8 +877,10 @@ def toTranslatorPage():
         user1 = user.query.filter_by(email=email).first()
         if user1.role != 0:
             return "false"
-        else: return render_template('translator_homepage.html', user=user1)
-    else: return "false"
+        else:
+            return render_template('translator_homepage.html', user=user1)
+    else: 
+        return "false"
 
 @app.route('/work/<list:ids>', methods=['POST','GET'])
 def work_zone(ids):
@@ -804,12 +892,10 @@ def work_zone(ids):
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        if user1.role != 0:
+        if user1.role is None:
             return "false"
-        
-        name = ids[0]
-        current_project = project.query.filter_by(name=name).first()
-        cur_task = task.query.filter_by(project_id=current_project.id).first()
+        taskId = ids[1]
+        cur_task = task.query.filter_by(id=taskId).first()
         source_path = cur_task.task_path
         target_path = source_path[0: source_path.rindex(".")] + ".txt"
         if not os.path.exists(source_path):
@@ -819,7 +905,7 @@ def work_zone(ids):
         htmlContent = ""
         with open(target_path, 'r') as f:
             htmlContent = f.read()
-        return render_template('workingpage.html', translationId = source_path,
+        return render_template('workingpage.html', user=user1, taskId=taskId, translationId = source_path,
             htmlContent = htmlContent, targetPath=target_path)
 
 @app.route('/save_text/<path:path>', methods=['POST','GET'])
@@ -834,4 +920,65 @@ def save_text(path):
             with open("./"+path, "w") as f:
                 f.write(html_content)
             return "true"
-    else: return "false"
+        else:
+            return "false"
+    else: 
+        return "false"
+
+@app.route('/submit_text/<list:ids>', methods=['POST','GET'])
+def submit_text(ids):
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1.role != 0:
+            return "false"
+        if request.method == 'POST':
+            tr_ta = translators_tasks.query.filter_by(task_id=ids[0], translator_id=ids[1]).first()
+            tr_ta.task_type = 'finished'
+            db.session.add(tr_ta)
+            db.session.commit()
+            return "true"
+        else:
+            return "false"
+    else: 
+        return "false"
+
+@app.route('/export/<name>', methods=['POST','GET'])
+def export_project(name):
+    if session.get('email'):
+        email = session.get('email')
+        user1 = user.query.filter_by(email=email).first()
+        if user1.role != 1:
+            return "false"
+        # if request.method == 'POST':
+        cur_proj = project.query.filter_by(name=name).first()
+        tasks = task.query.filter_by(project_id=cur_proj.id).all()
+        path_page = []
+        for cur_task in tasks:
+            path_page.append([cur_task.task_path, cur_task.start_page])
+        
+        path_page = sorted(path_page, key=lambda x: x[1])
+        
+        cur_file_name = name + '.docx'
+        cur_file = './data/downloads/' + name + '/'
+        cur_file = os.path.abspath(cur_file)
+        if not os.path.exists(cur_file):
+            os.makedirs(cur_file)
+        myfile = b""
+        document = Document()
+        for path in path_page:
+            txt_path = path[0][0: path[0].rindex(".")] + ".txt"
+            with open(txt_path, "rb") as f:
+                myfile += f.read()
+        
+        # myfile=myfile.decode("utf-8","xmlcharrefreplace")
+        #myfile = re.sub(r'[^\x00-\x7F]+|\x0c',' ', myfile) # remove all non-XML-compatible characters
+        myfile = myfile.decode("utf-8", "ignore")
+        p = document.add_paragraph(myfile)
+        document.save(os.path.join(cur_file, cur_file_name))
+        # return redirect('/download_project/' + cur_file + cur_file_name)
+        response = make_response(send_from_directory(cur_file, cur_file_name, as_attachment=True))
+        response.headers["Content-Disposition"] = "attachment; filename={}".format(cur_file_name.encode().decode('latin-1'))
+        return response
+    else:
+        return "false"

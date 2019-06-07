@@ -21,12 +21,12 @@ migrate = Migrate(app, db)
 class translators_tasks(db.Model):
     __tablename__ = 'translators_tasks'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    translator_id = db.Column(db.Integer, nullable=False)
-    task_id =db.Column(db.Integer, nullable=False)
+    translator_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    task_id =db.Column(db.Integer, db.ForeignKey("task.id"), nullable=False)
     task_type = db.Column(db.String(32), nullable=False)
 
-    translator = db.relationship("user", lazy=True)
-    task = db.relationship("task", lazy=True)
+    translator = db.relationship("user", lazy=True, back_populates="tasks")
+    task = db.relationship("task", lazy=True, back_populates="users")
 
     def __init__(self, translator_id, task_id, task_type):
         self.translator_id = translator_id
@@ -45,7 +45,7 @@ class user(db.Model):
     signature = db.Column(db.String(128), nullable=True, default="This guy is too lazy~")
 
     # tasks = db.relationship("task", secondary=translators_tasks, lazy="subquery")
-    tasks = db.relationship("task", lazy=True)
+    tasks = db.relationship("translators_tasks", lazy=True, back_populates="translator")
 
     def __init__(self, email, username, password, role):
         self.email = email
@@ -108,6 +108,7 @@ class project(db.Model):
     from_language = db.Column(db.String(32), nullable=False)
     to_language = db.Column(db.String(32), nullable=True)
     href = db.Column(db.String(256), nullable=False)
+    progress = db.Column(db.String(16), nullable=True)
     
     book = db.relationship("book", lazy=True)
     tasks = db.relationship("task", lazy=True)
@@ -131,7 +132,7 @@ class task(db.Model):
     project = db.relationship("project", lazy=True)
 
     # translators = db.relationship("user", secondary=translators_tasks, lazy="subquery")
-    translators = db.relationship("user", lazy=True)
+    users = db.relationship("translators_tasks", lazy=True, back_populates="task")
 
     def __init__(self, project_id, start_page, end_page, task_path):
         self.project_id = project_id

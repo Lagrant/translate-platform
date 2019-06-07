@@ -230,6 +230,7 @@
                             $("body").append(projDetails);
                         }
                         var taskBody = ob.parentNode.parentNode.parentNode.parentNode;
+                        var taskId = taskBody.name;
                         $.ajax({
                             type: "POST",
                             url: "/get_setting_item/" + taskBody.id,
@@ -246,7 +247,7 @@
                             }
                         });
                         
-                        var pageLink = "/work/" + taskBody.id + "+{{user.username}}";
+                        var pageLink = "/work/" + taskBody.id + "+" + taskId;
                         var workZone = document.getElementById("translator-area");
                         workZone.setAttribute("href", pageLink);
                         /*$.ajax({

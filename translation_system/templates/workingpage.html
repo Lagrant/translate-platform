@@ -27,7 +27,7 @@
                 background: #F9F2F4;
             }
             #save, #submit {
-                float: right;
+/*                float: right;*/
                 width: 70px;
                 height: 30px;
                 font-size: 5px;
@@ -53,8 +53,8 @@
             <div id="edit" class="translate">
                 <textarea id="translate-content1" class="translate-area" name="zone" spellcheck="true">{{htmlContent}}</textarea>
                 <div class="button-area">
-                    <button id="save" onclick="saveText()" class="save-button">save</button>
                     <button id="submit" onclick="submitText()" class="submit-button">submit</button>
+                    <button id="save" onclick="saveText()" class="save-button">save</button>
                 </div>
             </div>            
             
@@ -93,11 +93,40 @@
         
         <script>
             function saveText() {
+                if ({{user.role}} == 1) {
+                    alert("Operation denied");
+                    return;
+                }
                 htmlText = $(document.getElementsByTagName("iframe")[1].contentWindow.document.body).html();
                 $.ajax({
                     type: 'POST',
                     url: '/save_text/' + "{{targetPath}}",
                     data: JSON.stringify(htmlText),
+                    error: function () {
+                        alert("fail to save file");
+                    }
+                });
+            }
+            
+            function submitText() {
+                if ({{user.role}} == 1) {
+                    alert("Operation denied");
+                    return;
+                }
+                htmlText = $(document.getElementsByTagName("iframe")[1].contentWindow.document.body).html();
+                $.ajax({
+                    type: 'POST',
+                    url: '/save_text/' + "{{targetPath}}",
+                    data: JSON.stringify(htmlText),
+                    success: function () {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/submit_text/' + "{{taskId}}" + "+" + "{{user.id}}",
+                            error:function () {
+                                alert("fail to submit file");
+                            }
+                        });
+                    },
                     error: function () {
                         alert("fail to save file");
                     }

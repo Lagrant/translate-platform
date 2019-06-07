@@ -141,12 +141,14 @@
                                     <input type="file" name="foreign-book" id="foreign-book" style="display:none" >
                                 </form>
                             </div>
-                            <!--<div class="task-settings">Group: 
+                            <div class="task-settings">Language: 
                                 <select class="selection">
                                     <option value="--none--">--none--</option>
-                                    <option value="csgroup">csgroup</option>
+                                    <option value="en">English</option>
+                                    <option value="zh">Chinese</option>
+                                    <option value="jp">Japanese</option>
                                 </select>
-                            </div>-->
+                            </div>
                             <div class="task-settings">Deadline:
                                 <input type="date" id="ddl" class="selection" name="ddl">
                             </div>
@@ -241,7 +243,7 @@
                                             </div>
                                             <div class="el-card__body">
                                                 <div style="cursor:pointer">
-                                                    <a id="view-translation">View</a>
+                                                    <a id="view-translation" class="jump-link">View</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -503,20 +505,47 @@
                                         type: "POST",
                                         url: "/get_task_list/" + taskBody.id,
                                         success: function (res) {
-                                            var result = JSON.parse(res);
-                                            var insp = $("#insp")[0];
+                                            var result = res;
+                                            var taskContent = $("#inspection").children("div")[0];
+                                            var taskBody = $(taskContent).children("div")[1];
+                                            $(taskBody).empty();
+                                            
+                                            var insp0 = document.createElement("div");
+                                            insp0.setAttribute("name", "insp");
+
+                                            var trans0 = document.createElement("div");
+                                            trans0.setAttribute("class", "left-bar");
+                                            trans0.innerHTML = "Name";
+
+                                            var status0 = document.createElement("div");
+                                            status0.setAttribute("class", "medium-bar");
+                                            status0.innerHTML = "Status";
+
+                                            var viewAhref0 = document.createElement("div");
+                                            viewAhref0.setAttribute("class", "right-bar");
+                                            viewAhref0.innerHTML = "View";
+
+                                            insp0.appendChild(trans0);
+                                            insp0.appendChild(status0);
+                                            insp0.appendChild(viewAhref0);
+                                            taskBody.appendChild(insp0);
+                                           
+//                                            insp.setAttribute("class", "task-body");
                                             
                                             for (var i = 0; i < result.length; i++) {
+                                                var insp = document.createElement("div");
+                                                insp.setAttribute("name", "insp");
+                                                
                                                 var trans = document.createElement("div");
                                                 trans.setAttribute("class", "left-bar");
-                                                trans.innerHTML = result["translator"];
+                                                trans.innerHTML = result[i]["translator"];
                                                 
                                                 var status = document.createElement("div");
                                                 status.setAttribute("class", "medium-bar");
-                                                status.innerHTML = result["status"];
+                                                status.innerHTML = result[i]["status"];
                                                 
                                                 var ahref = document.createElement("a");
-                                                ahref.setAttribute("href", result["view"]);
+                                                ahref.setAttribute("href", result[i]["view"]);
                                                 ahref.innerHTML = "View";
                                                 var viewAhref = document.createElement("div");
                                                 viewAhref.setAttribute("class", "right-bar");
@@ -525,9 +554,19 @@
                                                 insp.appendChild(trans);
                                                 insp.appendChild(status);
                                                 insp.appendChild(viewAhref);
+                                                taskBody.appendChild(insp);
                                             }
                                         }
                                     });
+                                }
+                                
+                                function exportProject(ob) {
+                                    var da = ob.parentNode.parentNode.parentNode;
+                                    var taskBody = da.parentNode;
+                                    var downloadLink = ob.firstChild;
+                                    downloadLink.setAttribute("href", "/export/" + taskBody.id);
+                                    downloadLink.click();
+                                    da.style.display = "none";
                                 }
                                 
                                 function postAssignMem(ob) {
@@ -599,6 +638,12 @@
                                     
                                     da.style.display = "none";
                                 }
+                                
+                                function closeInspection(ob) {
+                                    var da = ob.parentNode.parentNode.parentNode;
+                                    var taskBody = da.parentNode;
+                                    da.style.display = "none";
+                                }
                             </script>
                             <div id="replace-terms" class="task">
                                 <div class="task-content">
@@ -618,8 +663,6 @@
                                     
                                     <div id="replacement" class="task-body">
                                         <div name="group-member">
-
-                                            
                                             <div class="input-area">
                                                 <select class="languages">
                                                     <option value="--none--">--none--</option>
@@ -769,34 +812,23 @@
                                         <h3>Inspect Assignments</h3>
                                     </div>
                                     <div class="task-body">
-                                        <div class="left-bar">
-                                            Name
-                                        </div>
-                                        <div class="medium-bar">
-                                            Status
-                                        </div>
-                                        <div class="right-bar">
-                                            View
+                                        <div>
+                                            <div class="left-bar">
+                                                Name
+                                            </div>
+                                            <div class="medium-bar">
+                                                Status
+                                            </div>
+                                            <div class="right-bar">
+                                                View
+                                            </div>
                                         </div>
                                     </div>
-<!--
-                                    <div id="insp" class="task-body">
-                                            
-                                        <div class="left-bar">
-                                            allen
-                                        </div>
-                                        <div class="medium-bar">
-                                            accepted
-                                        </div>
-                                        <div class="right-bar">
-                                            <a>view</a>
-                                        </div>
-                                        
-                                    </div>
--->
+
                                     
                                     <div class="task-settings">
-                                        <button class="selection">Confirm</button>
+                                        <button class="export" onclick="exportProject(this)"><a class="jump-link">Export</a></button>
+                                        <button class="selection" onclick="closeInspection(this)">Confirm</button>
                                     </div>
                                 </div>
                             </div>

@@ -25,9 +25,12 @@
     height: 4%;
 }
 
-.save-button, .submit-button {
-    position:absolute;
-    z-index:1
+.save-button {
+    float: left;
+}
+
+.submit-button {
+    float: right;
 }
 
 .show-area, .translate-area {

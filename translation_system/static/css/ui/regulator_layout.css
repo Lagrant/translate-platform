@@ -79,10 +79,20 @@
 }
 
 .selection {
-    float: right;
     margin-right: 30px;
     position: absolute;
     right: 30px;
+}
+
+.export {
+    margin-left: 30px;
+    position: absolute;
+    left: 30px;
+}
+
+.jump-link {
+    text-decoration: none;
+    color: black;
 }
 
 .left-option, .right-option {
