@@ -2,6 +2,7 @@ from flask import Flask
 import os
 from datetime import timedelta
 from .util import ListConverter
+import logging
 app = Flask(__name__)
 # log = app.logger
 # app.run('127.0.0.1', debug=True, port=5000, ssl_context=('D:\OpenSSL-Win64\bin\server.crt', 'D:\OpenSSL-Win64\bin\server.key'))
@@ -20,6 +21,13 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_POOL_SIZE'] = 100
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 3600
+
+log_path = './error/'
+if not os.path.exists(log_path):
+    os.makedirs(log_path)
+handler = logging.FileHandler(os.path.join(log_path, 'flask.log'), encoding='UTF-8')
+handler.setLevel(logging.DEBUG)
+app.logger.addHandler(handler)
 
 #app.register_blueprint(console)
 #ksw now

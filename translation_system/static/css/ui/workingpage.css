@@ -48,3 +48,12 @@
 .show-area {
     overflow: auto;
 }
+
+.query-area {
+    width: 40%;
+    height: 10%;
+    position: absolute;
+    z-index: 1;
+    right: 10px;
+    top: 5px;
+}

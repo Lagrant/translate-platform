@@ -14,7 +14,6 @@
         <script src="../static/js/bootstrap/jquery.media.js"></script>
         <script src="../static/js/bootstrap/jszip.js"></script>
         <script src="../static/js/bootstrap/docx.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js"></script>
         
         <style>
             blockquote {
@@ -36,31 +35,53 @@
             <a id="projId" class="pdf" href="/files/{{ projId }}"></a>
         </div>
         
-        <div id="process" class="pdfarea" style="display:none"></div>
+        <div id="process" class="query-area" style="display:none"></div>
         
         <div id="show" class="pdfarea" style="display:block">
 <!--            <a class="pdf" href="../../guibas1985.pdf"></a>-->
-            <a id="translationId" class="pdf">downloading the file</a>
+            <a id="translationId" class="pdf"></a>
         </div>
         <script>
             function queryProcess() {
                 $.ajax({
                     type: "POST",
-                    url: "/query/" + {{tid}},
+                    url: "/query/{{tid}}",
                     success: function (res) {
                         if (res == "false") {
                             alert("fail to translate file");
+                            return false;
                         } else {
-                            var result = JSON.parse(res);
-                            percent = parseFloat(result["percent"]);
-                            $("#process").innerHTML = "The process of translation is " + result["percent"] + "%";
+//                            var result = JSON.parse(res);
+                            percent = parseFloat(res["percent"]);
                             if (percent < 100) {
+                                $("#process")[0].innerHTML = "The process of translation is " + res["percent"] + "%...";
                                 setTimeout(queryProcess, 1000);
-                            } else return;
+                            } else {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/download_file/{{translationId}}",
+                                    data: JSON.stringify({{tid}}),
+                                    success: function (res) {
+                                        if (res == "false") {
+                                            alert("fail to download translated file");
+                                        } else {
+                                            $("#process")[0].style.display = "none";
+                                            $("#show")[0].style.display = "block";
+                                            $("#translationId")[0].href = "/files/{{ translationId }}";
+                                            $("#process")[0].innerHTML = "";
+                                            location.reload();
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("fail to load translated file");
+                                    }
+                                });
+                            };
                         }
                     },
                     error: function (res) {
                         alert("fail to load translation file");
+                        return true;
                     }
                 });
             }
@@ -74,28 +95,8 @@
                 $("#show")[0].style.display = "none";
                 $("#process")[0].style.display = "block";
 
-                /*var translationId = {{translationId}};
-                var tid = {{tid}};
-                var downloadParams = (translationId.toString(), tid.toString());*/
-                $.ajax({
-                    type: "POST",
-                    url: "/download_file/{{translationId}}",
-                    data: JSON.stringify({{tid}}),
-                    success: function (res) {
-                        if (res == "false") {
-                            alert("fail to download translated file");
-                        } else {
-                            $("#process")[0].style.display = "none";
-                            $("#show")[0].style.display = "block";
-                            $("#translationId")[0].href = "/files/{{ translationId }}";
-                            $("#translationId")[0].innerHTML = "";
-                            location.reload();
-                        }
-                    },
-                    error: function () {
-                        alert("fail to load translated file");
-                    }
-                });
+                queryProcess();
+                
             }
             
         </script>

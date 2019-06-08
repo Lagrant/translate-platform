@@ -6,8 +6,8 @@ from . import app
 
 log = app.logger
 
-appid = "1559660394246"
-privatekey = "7efbf332ac0ce7ed3b8255df09270435d0986345"
+appid = "1559660394246" # lei: 1560007402734
+privatekey = "7efbf332ac0ce7ed3b8255df09270435d0986345" # lei: 84bbe6c31c32aa15dd363bbe46015c3ba8eb7670
 def generate_md5(filename):
     md5file = open(filename, 'rb')
     md5 = hashlib.md5(md5file.read()).hexdigest()
@@ -51,8 +51,9 @@ def upload_to_fanyigou(current_book_name, source_language, target_language):
     if code == 100:
         ret_data = dict_from_server["data"]
         tid = ret_data["tid"]
-        return tid
-    else: return False
+        return tid, dict_from_server["msg"]
+    else: 
+        return False, dict_from_server["msg"]
 
 def query_process(tid):
     nonce_str = ''.join(random.sample(string.ascii_letters + string.digits, 16))
@@ -71,7 +72,8 @@ def query_process(tid):
     dict_from_server = res.json()
     if dict_from_server["code"] == 100:
         return dict_from_server["data"]
-    else: return False
+    else: 
+        return False
 
 def download_file(cur_dir, tid):
     nonce_str = ''.join(random.sample(string.ascii_letters + string.digits, 16))
@@ -84,12 +86,14 @@ def download_file(cur_dir, tid):
     parameter_list = ["appid", "nonce_str", "tid", "dtype", "privatekey"]
     token = generate_token(dict_to_Send, parameter_list)
     dict_to_Send["token"] = token
+    log.debug(dict_to_Send)
     #修改文件名，将文件下载入特定文件夹
     res = requests.post("https://www.fanyigou.com/TranslateApi/api/downloadFile",
         params=dict_to_Send)
-    log.info(res.headers)
+    log.debug(res.headers)
     if res.headers["Content-Type"].find("application/octet-stream") != -1:
         with open(cur_dir, "wb") as f:
             f.write(res.content)
         return True
-    else: return False
+    else: 
+        return False

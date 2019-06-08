@@ -336,7 +336,7 @@
                                             var leftMax = parseInt(selectedValues[0].max), rightMax = parseInt(selectedValues[1].max)
                                             if (leftValue < 0 || leftValue > leftMax || rightValue <0 || rightValue > rightMax) {
                                                 alert("Invalid page range");
-                                                return;
+                                                return false;
                                             }
 //                                            selectedRange.push(swap(leftValue, rightValue));
                                             if (!checkAndPush(selectedRange, swap(leftValue, rightValue)))
@@ -352,7 +352,7 @@
                                         var stepLength = Math.ceil(selectedValues[0].value);
                                         if (stepLength > maxRange) {
                                             alert("Invalid page range");
-                                            return;
+                                            return false;
                                         }
                                         var step = parseInt(maxRange / stepLength);
                                         for (var i = 0; i < stepLength - 1; i++) {
@@ -374,6 +374,10 @@
                                         }
                                     } else if ($("#fixed")[0].style.display == "block") {
                                         selectedRange = fixedRange($("#fixed")[0]);
+                                        if (selectedRange == false) {
+                                            taskContent.parentNode.style.display = "none";
+                                            return;
+                                        }
                                     }
                                     
 //                                    console.log(selectedRange);
@@ -596,8 +600,18 @@
                                         type: "POST",
                                         url: "/translator_task/" + taskBody.id + "+" + assignType,
                                         data: JSON.stringify(t_s),
-                                        error: function (res, status) {
-                                            alert("fail to post translators and sections\n" + res, status);
+                                        success: function (res) {
+                                            if (res === "true") {
+                                                da.style.display = "none";
+                                                return;
+                                            } else {
+                                                alert(res);
+                                                da.style.display = "none";
+                                                return;
+                                            }
+                                        },
+                                        error: function () {
+                                            alert("fail to post translators and sections");
                                         }
                                     });
                                     
@@ -631,8 +645,18 @@
                                         type: "POST",
                                         url: "/translator_task/" + taskBody.id + "+" + assignType,
                                         data: JSON.stringify(t_s),
-                                        error: function (res, status) {
-                                            alert("fail to post translators and sections\n" + res, status);
+                                        success: function (res) {
+                                            if (res === "true") {
+                                                da.style.display = "none";
+                                                return;
+                                            } else {
+                                                alert(res);
+                                                da.style.display = "none";
+                                                return;
+                                            }
+                                        },
+                                        error: function () {
+                                            alert("fail to post translators and sections");
                                         }
                                     });
                                     

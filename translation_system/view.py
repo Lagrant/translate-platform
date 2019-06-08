@@ -148,12 +148,20 @@ def login_signup():
     data = request.get_json('data')
     email = data['email']
     cur_dir = "./data/users"
-    if os.path.isdir(cur_dir):
+    if not os.path.exists('./data/users/' + email):
         os.makedirs('./data/users/' + email)
         cur_dir = cur_dir + "/" + email
-        
     else:
-        return "error"
+        return "email already exist"
+    # if os.path.isdir(cur_dir):
+    #     if not os.path.exists('./data/users/' + email):
+    #         os.makedirs('./data/users/' + email)
+    #         cur_dir = cur_dir + "/" + email
+    #     else:
+    #         return "email already exist"
+        
+    # else:
+    #     return "error"
     verify = data['verify']
     confirm1 = mailconfirm.search(email, verify)
     if confirm1 is not None:  # 首先看验证码是否正确
@@ -334,7 +342,6 @@ def whether_login():
     if session.get('email'):
         email = session.get('email')
         user1 = user.query.filter_by(email=email).first()
-        log.info("user role is %s", user1.role)
         if user1.role != 1:
             return "false"
         return "true"
@@ -397,7 +404,6 @@ def get_page_num(projectID):
         if request.method == 'POST':
             current_book = book.query.filter_by(project_id=projectID).first()
             page_number = current_book.translated_page_number
-            log.info("page number %s", page_number)
             return jsonify(page_number)
     else:
         return "false" 
@@ -411,7 +417,6 @@ def set_setting_list():
             return "false"
         if request.method == 'POST':
             setting_list = json.loads(request.get_data())
-            log.info(setting_list)
             cur_dir = "./data/users/" + email
             cur_dir = cur_dir + "/" + setting_list["name"]
             if not os.path.exists(cur_dir):
@@ -435,7 +440,10 @@ def compute_progress(proj_id):
     for single_task in all_tasks:
         total_task += translators_tasks.query.filter_by(task_id=single_task.id).count()
         finished_task += translators_tasks.query.filter_by(task_id=single_task.id, task_type="finished").count()
-    rate = int(finished_task / total_task * 100)
+    if total_task == 0:
+        rate = 0
+    else:
+        rate = int(finished_task / total_task * 100)
     progress = str(rate) + "%"
     return progress
 
@@ -510,7 +518,6 @@ def segment_file(name):
             current_book = book.query.filter_by(project_id=current_project_id).first()
             current_book_name = current_book.translated_book_name
 
-            # 上线以后写个try，防止pypdf2编码报错
             try:
                 out_files = split(current_book_name, select_range)
             except Exception as e:
@@ -664,12 +671,12 @@ def translator_setion(ids):
                 cur_task = task.query.filter_by(project_id=current_project.id, 
                     start_page=spage, end_page=epage).first()
                 if cur_task is None:
-                    return Response('Task not found ' + sections[i], status=404)
+                    return 'Task not found ' + sections[i]
                 translator = user.query.filter_by(username=translators[i]).first()
                 if translator is None:
-                    return Response('Translator not found ' + translators[i], status=404)
+                    return 'Translator not found ' + translators[i]
                 if translator.role != 0:
-                    return Response('Invalide translator role', status=404)
+                    return 'Invalide translator role'
                 
                 # cur_task.translators.append(translator)
                 # translator.tasks.append(cur_task)
@@ -679,7 +686,7 @@ def translator_setion(ids):
                 db.session.add(translator)
                 db.session.commit()
 
-            return Response('Successfully adds translators and sections', status=200)
+            return "true"
         else:
             return "false"
     else: 
@@ -762,12 +769,12 @@ def toTranslationPage(ids):
         db.session.add(current_book)
         db.session.commit()
         if not os.path.isfile(translationId):
-            # 变量要改成 docx_term_book
-            tid = upload_to_fanyigou(current_book_name=pdf_term_book, source_language=current_project.from_language, target_language=current_project.to_language)
-
+            # 变量要改成 docx_term_book #不用了
+            tid, msg = upload_to_fanyigou(current_book_name=pdf_term_book, source_language=current_project.from_language, target_language=current_project.to_language)
             if tid == False:
-                return "false"
-        else: tid = -1
+                return msg
+        else: 
+            tid = -1
         
         return render_template('translationpage.html', tid = tid, projId = projId, translationId = translationId)
     else:
@@ -783,7 +790,6 @@ def query(tid):
         if request.method == 'POST':
             #查询翻译进度
             process_data = query_process(tid)
-            log.info("process_data %s", process_data)
             if process_data == False:
                 return "false"
             return jsonify(process_data)
@@ -803,7 +809,7 @@ def download(path):
             #下载翻译结果
             # ids[0] = cur_dir, ids[1] = tid
             tid = json.loads(request.get_data())
-            if os.path.isfile("../"+path):
+            if os.path.isfile("./"+path):
                 return "true"
             feed_back = download_file("./"+path,tid)
             # feed_back = True
