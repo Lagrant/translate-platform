@@ -1,7 +1,5 @@
 import ast
 import copy
-import pandas as pd
-import numpy as np
 import csv
 import os
 import re
@@ -149,9 +147,9 @@ def mycopyfile(srcfile, dstfile):
 def login_signup():
     data = request.get_json('data')
     email = data['email']
-    cur_dir = "./data/user"
+    cur_dir = "./data/users"
     if os.path.isdir(cur_dir):
-        os.makedirs('./data/user/' + email)
+        os.makedirs('./data/users/' + email)
         cur_dir = cur_dir + "/" + email
         
     else:
@@ -242,7 +240,7 @@ def user_user():
         user1 = user.query.filter_by(email=email).first()
         if user1 is not None:
             email = user1.email
-            cur_dir = './data/user/' + email
+            cur_dir = './data/users/' + email
             print(cur_dir)
             if os.path.exists(cur_dir):
                 return render_template('user/user.html', user=user1)
@@ -284,11 +282,11 @@ def user_change_img():
         file_types = ['jpg','jpeg','png','pdf']
         this_type = file.filename.rsplit('.', 1)[1]
         for file_type in file_types:
-            old_file = 'data/user/' + session.get('email') + '/img/user_img.'+file_type
+            old_file = './data/users/' + session.get('email') + '/img/user_img.'+file_type
             if os.path.exists(old_file):
                 os.remove(old_file)
         if this_type in file_types:
-            old_file = 'data/user/' + session.get('email') + '/img/user_img.jpg'
+            old_file = './data/users/' + session.get('email') + '/img/user_img.jpg'
             file.save(old_file)
             return 'success'
     else:
@@ -357,7 +355,7 @@ def upload_file(filename):
             project_id = request.form.get("projectId", type = str, default = None)
             current_project = project.query.filter_by(id=project_id).first()
             project_name = current_project.name
-            cur_dir = "./data/user/" + email + "/" + project_name
+            cur_dir = "./data/users/" + email + "/" + project_name
             
             f = request.files['file']
             fname = secure_filename(f.filename)
@@ -388,19 +386,6 @@ def upload_file(filename):
             return "false"
     else:
         return "false"
-    '''
-    if session.get('email'):
-        email = session.get('email')
-        user1 = user.query.filter_by(email=email).first()
-        if user1.role != 1:
-            return "false"
-        if request.method == 'POST':
-            return
-
-            
-    else:
-        return render_template('user/login.html')
-    '''
 
 @app.route('/page_number/<projectID>', methods=['POST','GET'])
 def get_page_num(projectID):
@@ -427,7 +412,7 @@ def set_setting_list():
         if request.method == 'POST':
             setting_list = json.loads(request.get_data())
             log.info(setting_list)
-            cur_dir = "./data/user/" + email
+            cur_dir = "./data/users/" + email
             cur_dir = cur_dir + "/" + setting_list["name"]
             if not os.path.exists(cur_dir):
                 os.makedirs(cur_dir)
@@ -772,7 +757,7 @@ def toTranslationPage(ids):
             story,
         )
 
-        translationId = "./data/user/" + manager.email + "/" + current_project.name + "/" + ids[1]
+        translationId = "./data/users/" + manager.email + "/" + current_project.name + "/" + ids[1]
         current_book.translated_book_name = translationId
         db.session.add(current_book)
         db.session.commit()
@@ -955,7 +940,7 @@ def export_project(name):
         path_page = sorted(path_page, key=lambda x: x[1])
         
         cur_file_name = name + '.docx'
-        cur_file = './data/user/' + email + '/' + name +'/'
+        cur_file = './data/users/' + email + '/' + name +'/'
         cur_file = os.path.abspath(cur_file)
         if not os.path.exists(cur_file):
             os.makedirs(cur_file)
@@ -971,7 +956,6 @@ def export_project(name):
         myfile = myfile.decode("utf-8", "ignore")
         p = document.add_paragraph(myfile)
         document.save(os.path.join(cur_file, cur_file_name))
-        # return redirect('/download_project/' + cur_file + cur_file_name)
         response = make_response(send_from_directory(cur_file, cur_file_name, as_attachment=True))
         response.headers["Content-Disposition"] = "attachment; filename={}".format(cur_file_name.encode().decode('latin-1'))
         return response
