@@ -185,7 +185,10 @@ function drawAssign() {
             }
             var results = res;
             for (i in results) {
-                drawAssignItems(JSON.parse(results[i]));
+                if (typeof results[i] === "string") {
+                    results[i] = JSON.parse(results[i]);
+                }
+                drawAssignItems(results[i]);
             }
         },
     });

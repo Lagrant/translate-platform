@@ -672,6 +672,9 @@ def translator_setion(ids):
                     start_page=spage, end_page=epage).first()
                 if cur_task is None:
                     return 'Task not found ' + sections[i]
+                duplicated = translators_tasks.query.filter_by(task_id=cur_task.id, task_type=assign_type)
+                if not duplicated is None:
+                    return "duplicated task in this assignment"
                 translator = user.query.filter_by(username=translators[i]).first()
                 if translator is None:
                     return 'Translator not found ' + translators[i]

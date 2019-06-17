@@ -333,6 +333,10 @@
                                         for (var i = 0; i < crs.length; i++) {
                                             var selectedValues = $(crs[i]).find("input");
                                             var leftValue = parseInt(selectedValues[0].value), rightValue = parseInt(selectedValues[1].value);
+                                            if (selectedValues[0].value == "" || selectedValues[1].value == "") {
+                                                alert("Segmentation range must not be empty");
+                                                return false;
+                                            }
                                             var leftMax = parseInt(selectedValues[0].max), rightMax = parseInt(selectedValues[1].max)
                                             if (leftValue < 0 || leftValue > leftMax || rightValue <0 || rightValue > rightMax) {
                                                 alert("Invalid page range");
@@ -350,6 +354,10 @@
                                         var selectedValues = $(fr).find("input");
                                         var maxRange = parseInt(selectedValues[0].max);
                                         var stepLength = Math.ceil(selectedValues[0].value);
+                                        if (selectedValues[0].value == "") {
+                                            alert("Segmentation range must not be empty");
+                                            return false;
+                                        }
                                         if (stepLength > maxRange) {
                                             alert("Invalid page range");
                                             return false;
