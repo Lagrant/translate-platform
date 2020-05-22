@@ -6,8 +6,12 @@ from . import app
 
 log = app.logger
 
-appid = "1559660394246" # lei: 1560007402734
-privatekey = "7efbf332ac0ce7ed3b8255df09270435d0986345" # lei: 84bbe6c31c32aa15dd363bbe46015c3ba8eb7670
+# lei: 1560007402734
+# shawn: 1559660394246
+# lei: 84bbe6c31c32aa15dd363bbe46015c3ba8eb7670
+# shawn: 7efbf332ac0ce7ed3b8255df09270435d0986345
+appid = "1560007402734" 
+privatekey = "84bbe6c31c32aa15dd363bbe46015c3ba8eb7670" 
 def generate_md5(filename):
     md5file = open(filename, 'rb')
     md5 = hashlib.md5(md5file.read()).hexdigest()
@@ -86,11 +90,9 @@ def download_file(cur_dir, tid):
     parameter_list = ["appid", "nonce_str", "tid", "dtype", "privatekey"]
     token = generate_token(dict_to_Send, parameter_list)
     dict_to_Send["token"] = token
-    log.debug(dict_to_Send)
     #修改文件名，将文件下载入特定文件夹
     res = requests.post("https://www.fanyigou.com/TranslateApi/api/downloadFile",
         params=dict_to_Send)
-    log.debug(res.headers)
     if res.headers["Content-Type"].find("application/octet-stream") != -1:
         with open(cur_dir, "wb") as f:
             f.write(res.content)

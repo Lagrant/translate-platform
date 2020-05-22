@@ -1,5 +1,6 @@
 from PyPDF2 import PdfFileReader, PdfFileMerger, PdfFileWriter
 import os
+import time
 def merge(file_path_list):
         """
         merge the given file
@@ -34,17 +35,14 @@ def merge_all(path):
         PDFHelper.merge(pdf_path_list)
         pass
 
-def split(pdf_path, index_list):
+def split(pdf_path, int_index_list):
         
         pdf_reader = PdfFileReader(pdf_path)
-        page_num = pdf_reader.getNumPages()
+        # page_num = pdf_reader.getNumPages()
 
-        print('spliting pdf ' + pdf_path + ' to ' + str(len(index_list)) + ' parts')
+        # print('spliting pdf ' + pdf_path + ' to ' + str(len(index_list)) + ' parts')
 
-        int_index_list = []
-        for index in index_list:
-            int_index_list.append(list(map(int, index)))
-
+        
         out_files = []
         for index in int_index_list:
             """    
@@ -70,5 +68,7 @@ def split(pdf_path, index_list):
         return out_files
 
 if __name__ == '__main__':
-    index_list = [[2,5],[6,7]]
-    split('./static/uploads/A_two-dimensional_interpolation_for_irregularly-spaced_data_.pdf', index_list)
+        index_list = [[8,8]]
+        split('/Users/Lagrant/Downloads/OAE_Defining_a_Term.pdf', index_list)
+#        file_path_list = ["/Users/Lagrant/Downloads/IMG_2784.pdf"]
+#        merge(file_path_list)

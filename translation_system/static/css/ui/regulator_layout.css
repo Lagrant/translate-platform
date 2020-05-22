@@ -133,6 +133,16 @@
     display: inline;
 }
 
+.left-selection, .right-selection {
+    height: 30px;
+    width: 150px;
+    display: inline;
+}
+
+.left-selection {
+    margin-left: 145px;
+}
+
 .form-group {
     height: 30px;
     width: 150px;
@@ -155,6 +165,18 @@
     font-size: 30px;
 }
 
+.trans {
+    margin-left: 5px;
+}
+
+.section {
+    margin-left: 10px;
+}
+
+.trans, .section {
+    font-size: 20px;
+}
+
 .input-area {
     display: inline;
 }
@@ -162,6 +184,6 @@
 .mem-assign {
     height: 40px;
     font-size: 30px;
-    margin-left: 80px;
+    margin-left: 5px;
     width: 30%;
 }

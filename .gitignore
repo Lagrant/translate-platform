@@ -15,3 +15,5 @@ terms/
 data/
 translation_system/__pycache__/
 source.pdf
+translation_system/error/
+translation_system/migrations/

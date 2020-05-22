@@ -138,7 +138,7 @@
                             <div class="task-settings">Book: 
                                 <input type="button" id="upload" value="upload" class="selection">
                                 <form id="upload-form" method="post" enctype="multipart/form-data" class="selection" style="bottom:105px;" >
-                                    <input type="file" name="foreign-book" id="foreign-book" style="display:none" >
+                                    <input type="file" multiple name="foreign-book" id="foreign-book" style="display:none" >
                                 </form>
                             </div>
                             <div class="task-settings">Language: 
@@ -329,7 +329,7 @@
                                     
                                     function customizedRange() {
                                         var selectedRange = new Array();
-                                        var crs = document.getElementsByName("custmoized-range");
+                                        var crs = document.getElementsByName("customized-range");
                                         for (var i = 0; i < crs.length; i++) {
                                             var selectedValues = $(crs[i]).find("input");
                                             var leftValue = parseInt(selectedValues[0].value), rightValue = parseInt(selectedValues[1].value);
@@ -338,12 +338,12 @@
                                                 return false;
                                             }
                                             var leftMax = parseInt(selectedValues[0].max), rightMax = parseInt(selectedValues[1].max)
-                                            if (leftValue < 0 || leftValue > leftMax || rightValue <0 || rightValue > rightMax) {
+                                            if (leftValue < 1 || leftValue > leftMax || rightValue < 1 || rightValue > rightMax) {
                                                 alert("Invalid page range");
                                                 return false;
                                             }
 //                                            selectedRange.push(swap(leftValue, rightValue));
-                                            if (!checkAndPush(selectedRange, swap(leftValue, rightValue)))
+                                            if (!checkAndPush(selectedRange, swap(leftValue - 1, rightValue - 1)))
                                                 return false;
                                         }
                                         return selectedRange;
@@ -393,7 +393,9 @@
                                         type: "POST",
                                         url: "/send_segment_range/" + taskBody.id,
                                         data: JSON.stringify(selectedRange),
-                                        
+                                        success: function (res) {
+                                            alert(res);
+                                        },
                                         error: function () {
                                             alert("fail to segment file");
                                             taskContent.parentNode.style.display = "none";
@@ -414,7 +416,6 @@
                                 function postTerms(ob) {
                                     var da = ob.parentNode.parentNode.parentNode;
                                     var taskBody = da.parentNode;
-                                    da.style.display = "none";
                                     
                                     var langAndDiscp = $(da).find("select");
                                     var language = langAndDiscp[0].options[langAndDiscp[0].selectedIndex].value.toString();
@@ -429,6 +430,10 @@
                                         type: "POST",
                                         url: "/terms/" + taskBody.id,
                                         data: JSON.stringify(l_d),
+                                        success: function (res) {
+                                            alert(res);
+                                            da.style.display = "none";
+                                        },
                                         error: function () {
                                             alert("fail to replace terms");
                                         }
@@ -609,14 +614,9 @@
                                         url: "/translator_task/" + taskBody.id + "+" + assignType,
                                         data: JSON.stringify(t_s),
                                         success: function (res) {
-                                            if (res === "true") {
-                                                da.style.display = "none";
-                                                return;
-                                            } else {
-                                                alert(res);
-                                                da.style.display = "none";
-                                                return;
-                                            }
+                                            alert(res);
+                                            da.style.display = "none";
+                                            return;
                                         },
                                         error: function () {
                                             alert("fail to post translators and sections");
@@ -685,7 +685,7 @@
                                     </div>
                                     
                                     <div class="task-body">
-                                        <div class="left-option">
+                                        <div class="left-option" style="margin-left:145px;">
                                             Language
                                         </div>
                                         <div class="right-option">
@@ -696,7 +696,7 @@
                                     <div id="replacement" class="task-body">
                                         <div name="group-member">
                                             <div class="input-area">
-                                                <select class="languages">
+                                                <select class="languages left-selection">
                                                     <option value="--none--">--none--</option>
                                                     <option value="en">English</option>
                                                     <option value="zh">Chinese</option>
@@ -704,9 +704,9 @@
                                                 </select>
                                             </div>
                                             <div class="input-area">
-                                                <select class="discplines">
+                                                <select class="discplines right-selection">
                                                     <option value="--none--">--none--</option>
-                                                    <option value="none">not available now</option>
+                                                    <option value="none">unavailable</option>
                                                 </select>
                                             </div>
                                             
@@ -735,7 +735,7 @@
                                         </div>
                                     </div>
                                     <div id="customized" class="task-body" style="display:block;">
-                                        <div name="custmoized-range">
+                                        <div name="customized-range">
                                             <div class="input-area">
                                                 <span class="new-range" onclick="newRange(this)" style="padding-top:5px;">+</span>
                                             </div>
@@ -747,7 +747,7 @@
                                                 <label class="to">to</label>
                                                 <input class="form-group" type="number" name="page_int">
                                             </div>
-                                            <div class="input-area" name="delete-range">
+                                            <div class="input-area" name="delete-assign-range">
                                                 <span class="close" onclick="deleteRange(this)" style="padding-top:10px;">&times;</span>
                                             </div>
                                         </div>
@@ -771,24 +771,21 @@
                                         <span class="close" onclick="closeWindow()">&times;</span>
                                         <h3>Distribute Assignments</h3>
                                     </div>
-                                    
                                     <div id="distribution" class="task-body">
                                         <div name="group-member">
                                             <div class="input-area">
                                                 <span class="new-range" onclick="newRange(this)" style="padding-top:5px;">+</span>
                                             </div>
                                             <div class="input-area">
+                                                <label class="trans">translator</label>
                                                 <input type="text" name="translators" class="member mem-assign"></input>
                                                 
-                                                <!--<select class="member mem-assign">
-                                                    <option value="--none--">--none--</option>
-                                                    <option value="Allen">Allen</option>
-                                                </select>-->
                                             </div>
                                             <div class="input-area">
                                                 <select name="sections" class="assignments mem-assign">
                                                     <option value="--none--">--none--</option>
                                                 </select>
+                                                <label class="section">task</label>
                                             </div>
                                             <div class="input-area" name="delete-member">
                                                 <span class="close" onclick="deleteRange(this)" style="padding-top:10px;">&times;</span>
@@ -816,6 +813,7 @@
                                                 <span class="new-range" onclick="newRange(this)" style="padding-top:5px;">+</span>
                                             </div>
                                             <div class="input-area">
+                                                <label class="trans">translator</label>
                                                 <input type="text" name="checkers" class="member mem-assign"></input>
                                                 
                                             </div>
@@ -823,8 +821,9 @@
                                                 <select name="parts" class="mem-assign">
                                                     <option value="--none--">--none--</option>
                                                 </select>
+                                                <label class="section">task</label>
                                             </div>
-                                            <div class="input-area" name="delete-member">
+                                            <div class="input-area" name="delete-crossing-member">
                                                 <span class="close" onclick="deleteRange(this)" style="padding-top:10px;">&times;</span>
                                             </div>
                                         </div>

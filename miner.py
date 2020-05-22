@@ -53,8 +53,7 @@ def parse(path):
                     text += results + '\n'
         with open(write_to_path, 'w',encoding='utf-8') as f:
                 f.write(text)
-        # return text
 
 if __name__ == '__main__':
-    path ="/Users/Lagrant/Downloads/Translation_System-1/static/uploads/translation_A_two-dimensional_interpolation_for_irregularly-spaced_data_.pdf"
+    path ="/source.pdf"
     parse(path)

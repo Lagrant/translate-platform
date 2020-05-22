@@ -230,7 +230,7 @@
                             $("body").append(projDetails);
                         }
                         var taskBody = ob.parentNode.parentNode.parentNode.parentNode;
-                        var taskId = taskBody.name;
+                        var taskId = taskBody.getAttribute("name");
                         $.ajax({
                             type: "POST",
                             url: "/get_setting_item/" + taskBody.id,

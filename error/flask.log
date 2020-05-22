@@ -24,3 +24,12 @@
 {'code': 100, 'data': {'tid': 9453808}, 'msg': '请求成功'}
 {'appid': '1559660394246', 'nonce_str': 'yjoWUZ74J3LfrMGg', 'tid': 9453808, 'dtype': '2', 'privatekey': '7efbf332ac0ce7ed3b8255df09270435d0986345', 'token': '106742BC79121A1C87FE442788743E72'}
 {'Date': 'Sat, 08 Jun 2019 13:40:04 GMT', 'Content-Type': 'application/octet-stream;charset=UTF-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Set-Cookie': 'acw_tc=76b20f4715600012047292404ec0fbfbe8005c11eef28e4bbc9ab4994ce1fb;path=/;HttpOnly;Max-Age=2678401, SERVERID=4d3710f5610de09777c32896e5f2170b|1560001204|1560001204;Path=/', 'MD5': '49b0451a4d6beaeee76710c1d688785c', 'Content-Disposition': 'attachment; filename="c326515d-aa25-403f-964b-034f298f9161.pdf"'}
+spage 0, epage 0
+SELECT translators_tasks.id AS translators_tasks_id, translators_tasks.translator_id AS translators_tasks_translator_id, translators_tasks.task_id AS translators_tasks_task_id, translators_tasks.task_type AS translators_tasks_task_type 
+FROM translators_tasks 
+WHERE translators_tasks.task_id = %(task_id_1)s AND translators_tasks.task_type = %(task_type_1)s
+7
+7
+{'code': 100, 'data': {'tid': 10097997}, 'msg': '请求成功'}
+{'appid': '1560007402734', 'nonce_str': 'OH3KBg9nfDGQWyT8', 'tid': 10097997, 'dtype': '2', 'privatekey': '84bbe6c31c32aa15dd363bbe46015c3ba8eb7670', 'token': '7EE718A872818A6FDB1C37C96DF8C354'}
+{'Date': 'Thu, 20 Jun 2019 05:09:48 GMT', 'Content-Type': 'application/octet-stream;charset=UTF-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Set-Cookie': 'acw_tc=76b20f7015610073888367492e3c05f52ddf2f4c5f18633e69286e002d0797;path=/;HttpOnly;Max-Age=2678401, SERVERID=f5149c9dad75cea81d5098369daa00ae|1561007388|1561007388;Path=/', 'MD5': 'dbde404775b42ce4d0cd73da483dca30', 'Content-Disposition': 'attachment; filename="70343574-54ef-44dd-b4bc-f7bb8d243834.pdf"'}

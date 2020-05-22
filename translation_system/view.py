@@ -366,10 +366,11 @@ def upload_file(filename):
             
             f = request.files['file']
             fname = secure_filename(f.filename)
-            path_file_name = cur_dir + "/" + fname
+            # path_file_name = cur_dir + "/" + fname
+            file_type = fname.split(".")[-1]
+            path_file_name = cur_dir + "/source." + file_type
             f.save(path_file_name)
 
-            file_type = fname.split(".")[-1]
             language = current_project.from_language
             
             try:
@@ -380,7 +381,7 @@ def upload_file(filename):
                     os.makedirs(log_path)
                 with open(os.path.join(log_path, 'pdfminer.log'), 'a') as f:
                     f.write(e)
-                return "fail to convert pdf to txt file"
+                return Response("fail to convert pdf to txt file", status=500)
             
             pdf_reader = PdfFileReader(path_file_name)
             page_num = pdf_reader.getNumPages()
@@ -390,9 +391,9 @@ def upload_file(filename):
             db.session.commit()
             return Response('Uploaded file successfully', status=200)
         else:
-            return "false"
+            return Response('Get mothod is not allowed', status=500)
     else:
-        return "false"
+        return Response('Invalid user', status=500)
 
 @app.route('/page_number/<projectID>', methods=['POST','GET'])
 def get_page_num(projectID):
@@ -430,6 +431,8 @@ def set_setting_list():
             response_list["projectId"] = project1.id
             response_list["status"] = 200
             return jsonify(response_list)
+        else:
+            return "false"
     else:
         return "false"
 
@@ -511,15 +514,22 @@ def segment_file(name):
             return "false"
         if request.method == 'POST':
             select_range = json.loads(request.get_data())
-
             current_project = project.query.filter_by(name=name).first()
             current_project_id = current_project.id
+            int_index_list = []
+            for index in select_range:
+                temp = list(map(int, index))
+                duplicated = task.query.filter_by(project_id=current_project_id, start_page=temp[0], end_page=temp[1]).first()
+                if duplicated is None:
+                    int_index_list.append(temp)
+            if len(int_index_list) == 0:
+                return "Duplicated segmentation range"
 
             current_book = book.query.filter_by(project_id=current_project_id).first()
             current_book_name = current_book.translated_book_name
 
             try:
-                out_files = split(current_book_name, select_range)
+                out_files = split(current_book_name, int_index_list)
             except Exception as e:
                 log_path = './error/'
                 if not os.path.exists(log_path):
@@ -528,17 +538,16 @@ def segment_file(name):
                     f.write(e)
                 return "fail to segment file"
 
-            for i in range(len(select_range)):
+            for i in range(len(int_index_list)):
                 parse(out_files[i])
-                temp = list(map(int, select_range[i]))
-                start_page = temp[0] - 1
-                end_page = temp[1] - 1
+                start_page = int_index_list[i][0]
+                end_page = int_index_list[i][1]
 
                 task1 = task(project_id=current_project_id, start_page=start_page, end_page=end_page, task_path=out_files[i])
                 db.session.add(task1)
                 db.session.commit()
 
-            return Response("Successfully segment the file", status=200)
+            return "Successfully segment the file"
         else:
             return "false"
     else:
@@ -624,9 +633,11 @@ def replace_terms(name):
                 
                 with open(term_current_book_name, "w", encoding="utf-8") as fl:
                         fl.write(text)
-            return "true"
+            return "Successfully replace terms"
+        else:
+            return "Invalid request method"
     else:
-        return "false"
+        return "Invalid user"
 
 @app.route('/get_range_list/<string:name>', methods=['POST','GET'])
 def get_range_list(name):
@@ -668,12 +679,13 @@ def translator_setion(ids):
             for i in range(0,len(t_s)):
                 spage = int(sections[i].split(",")[0]) - 1
                 epage = int(sections[i].split(",")[1]) - 1
+                
                 cur_task = task.query.filter_by(project_id=current_project.id, 
                     start_page=spage, end_page=epage).first()
                 if cur_task is None:
                     return 'Task not found ' + sections[i]
-                duplicated = translators_tasks.query.filter_by(task_id=cur_task.id, task_type=assign_type)
-                if not duplicated is None:
+                duplicated = translators_tasks.query.filter_by(task_id=cur_task.id, task_type=assign_type).first()
+                if duplicated is not None:
                     return "duplicated task in this assignment"
                 translator = user.query.filter_by(username=translators[i]).first()
                 if translator is None:
@@ -683,17 +695,17 @@ def translator_setion(ids):
                 
                 # cur_task.translators.append(translator)
                 # translator.tasks.append(cur_task)
-                translators_tasks1 = translators_tasks(translator.id, cur_task.id, assign_type)
+                translators_tasks1 = translators_tasks(translator_id=translator.id, task_id=cur_task.id, task_type=assign_type)
                 db.session.add(translators_tasks1)
                 db.session.add(cur_task)
                 db.session.add(translator)
                 db.session.commit()
 
-            return "true"
+            return "Successfully assign"
         else:
-            return "false"
+            return "Invalid request method"
     else: 
-        return "false"
+        return "Please login or signup"
 
 # @app.route('/get_translator_task_file/<string:name>', methods=['POST','GET'])
 # def get_t_s_file(name):

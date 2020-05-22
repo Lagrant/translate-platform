@@ -78,22 +78,34 @@ function newTaskSettings(ob) {
     
     console.log(settingList);
     
-    var file_name=$("input[name=foreign-book]").val();
-    var fileType, nameOnly;
-    console.log(file_name);
+//    var file_name=$("input[name=foreign-book]").val();
+    var upFiles = $("#foreign-book")[0].files;
+    var origFileType;
+//    console.log(file_name);
     
-    if (file_name.lastIndexOf(".")!=-1){
-        fileType = (file_name.substring(file_name.lastIndexOf(".")+1,file_name.length)).toLowerCase();
-        nameOnly = file_name.substring(0,file_name.lastIndexOf("."));
-        nameOnly = nameOnly.split("\\").slice(-1);
-    //        nameOnly = nameOnly[0].replace(/(\s*$)/g,"");
-        nameOnly = nameOnly[0];
-        settingList["filename"] = nameOnly + "." + fileType;
-        settingList["href"] = "/translation/" + settingList["name"] + "+" + nameOnly + "_translation" + "." + fileType;
-    } else {
-        alert("invalid file name!");
-        return;
+    for (var i = 0; i < upFiles.length; i++) {
+        var file_name = upFiles[i].name;
+        var fileType, nameOnly;
+        if (file_name.lastIndexOf(".") != -1){
+            fileType = (file_name.substring(file_name.lastIndexOf(".")+1,file_name.length)).toLowerCase();
+            if (i === 0) {
+                origFileType = fileType;
+                nameOnly = file_name.substring(0,file_name.lastIndexOf("."));
+                nameOnly = nameOnly.split("\\").slice(-1);
+            //        nameOnly = nameOnly[0].replace(/(\s*$)/g,"");
+                nameOnly = nameOnly[0];
+                settingList["filename"] = nameOnly + "." + fileType;
+                settingList["href"] = "/translation/" + settingList["name"] + "+" + nameOnly + "_translation" + "." + fileType;
+            } else if (origFileType != fileType) {
+                alert("Different file types are not accepted: " + origFileType + " " + fileType);
+            }
+            
+        } else {
+            alert("invalid file name! " + file_name);
+            return;
+        }
     }
+
     $.ajax({
         type: "POST",
         url: "/set_setting_list",
@@ -103,14 +115,18 @@ function newTaskSettings(ob) {
                 if(fileType=='pdf'){
                     var fd=new FormData();
 
-                    fd.append("file",document.getElementById('foreign-book').files[0]);//这是获取上传的文件
+                    fd.append("file",upFiles);//这是获取上传的文件
                     fd.append("label","pdf");
                     fd.append("projectId", res["projectId"]);
 
                     var xhr=new XMLHttpRequest();
                     xhr.open("POST","/upload_file/" + nameOnly);//要传到后台方法的路径
-                    xhr.addEventListener("load",uploadComplete,false);
-                    xhr.send(fd)
+                    xhr.addEventListener("load",uploadComplete,true);
+                    xhr.send(fd);
+                    
+//                    location.reload();
+                    deleteAssigns();
+                    drawAssign();
                 }
             }
         },
@@ -120,14 +136,21 @@ function newTaskSettings(ob) {
         }
     });
     
-    drawAssign();
-    location.reload();
+//    drawAssign();
+//    location.reload();
     
     closeWindow();
 }
 
 
-
+function deleteAssigns() {
+    items = document.getElementsByClassName("project-item");
+    for (var i = 0; i < items.length; i++) {
+        if (items[i] != null) {
+            items[i].parentNode.removeChild(items[i]);
+        }
+    }
+}
 
 function drawAssignDetails(setting) {
     var item = $('<td rowspan="1" colspan="2">\n\
@@ -162,6 +185,7 @@ function drawAssignItems(result) {
     }
     var taskBody = $('<tbody></tbody>');
     taskBody.attr('id', result['name']);
+    taskBody.attr('class', 'project-item');
     if (result['taskId'] !== undefined) {
         taskBody.attr('name', result['taskId']);
     }
